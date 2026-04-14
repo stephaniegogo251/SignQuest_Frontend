@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"> -->
+    <link href="./styles.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="icon" href="img/sq_logo.png">
+    <title>SignQuest</title>
+</head>
+<body>
+    <div id="app" :style="pageBackground">
+        <main>
+            <div v-if="showSignUp" class="sign-up-pg">
+                <div class="su-logo"> <!-- sign up page with logo -->
+                    <img src="img/signquest_mp2.png" alt="signquest logo">
+                    <h1 v-text="sitename"></h1>
+                    <p>Unlock 2 Worlds with just your hands!</p>
+                </div>
+                <form class="signup-form" id="signup-form">
+                    <h1>Sign Up</h1>
+                    <input type="email" id="signup-email" name="signup-email" placeholder="Email Address" v-model.trim="user.email" required>
+                    <input type="text" id="signup-uname" name="signup-uname" placeholder="Username" v-model.trim="user.username" required>
+                    <button @click.prevent="submitSignupForm()" type="submit" class="signup-btn" id="signup-btn" :disabled="!canSubmitSignupForm()">Sign Up</button>
+                    <p>Already Have an Account? <span @click="showLoginPage()" class="login-link">Login</span></p>
+                </form>
+            </div>
+            <div v-if="showLogin" class="login-pg">
+                <div class="su-logo"> <!-- sign up page with logo -->
+                    <img src="img/signquest_mp2.png" alt="signquest logo">
+                    <h1 v-text="sitename"></h1>
+                    <p>Unlock 2 Worlds with just your hands!</p>
+                </div>
+                <form class="login-form" id="login-form">
+                    <h1>Login</h1>
+                    <input type="email" id="login-email" name="login-email" placeholder="Email Address" v-model.trim="login_user.email" required>
+                    <input type="text" id="login-uname" name="login-uname" placeholder="Username" v-model.trim="login_user.uname" required>
+                    <button @click.prevent="submitLoginForm()" type="submit" class="login-btn" id="login-btn" :disabled="!canSubmitLoginForm()">Login</button>
+                    <p>Don't Have an Account? <span @click="showSignupPage()" class="signup-link">Sign Up</span></p>
+                </form>
+            </div>
+            <div v-if="showHome">
+                <div class="header">
+                    <h1 v-text="sitename"></h1>
+                    <div class="nav-menu">
+                        <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                        <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                        <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                        <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                        <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            settings
+                        </p>
+                    </div>
+                    <div class="settings_box" v-if="showSettings">
+                        <h1>Settings</h1>
+                        <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                        <p>Theme:</p>
+                        <div>
+                            <input type="radio" id="light" name="display" value="lock1">
+                            <label class="display-type" for="light">Light</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="dark" name="display" value="lock2">
+                            <label class="display-type" for="dark">Dark</label>
+                        </div>
+                        <a @click="showLogoutDialogue()">Logout</a>
+                    </div>
+                    <div class="dialogue-box" v-if="showLogout">
+                        <p>Are you sure you want to logout?</p>
+                        <div class="box-btn">
+                            <button @click="logoutUser()">Yes</button>
+                            <button @click="showLogoutDialogue()">No</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="home-pg">
+                    <div class="main-box">
+                        <img src="img/signquest_mp2.png">
+                        <div class="main-desc">
+                            <h2>Gamified Sign</h2>
+                            <h2 class="line2">Language Learning</h2>
+                            <p>Unlock a whole new world with just your hands!</p>
+                            <a class="start-sign-btn" v-on:click="showPathPage()">START SIGNING</a>
+                        </div>
+                    </div>
+                    <div class="why-section">
+                        <h2>Why Choose SignQuest?</h2>
+                        <div class="features">
+                            <div class="feature">
+                                <h1 class="hide">01</h1>
+                                <h3 class="hide">Gamified Learning</h3>
+                                <p>Learn Sign Language through narrative story levels. Complete the story to pass the level.</p>
+                            </div>
+                            <div class="feature">
+                                <h1 class="hide">02</h1>
+                                <h3 class="hide">ML-Based Precision</h3>
+                                <p>Boost your confidence with machine-learning precision tracking to guide your signing.</p>
+                            </div>
+                            <div class="feature">
+                                <h1 class="hide">03</h1>
+                                <h3 class="hide">Inclusive Dual Path</h3>
+                                <p>Master American and Emirati Sign Language on a single, accessible platform.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else>
+                <div v-if="showAbout">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                            <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                            <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                            <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                            <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                            <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                                settings
+                            </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <h1 class="abt-title1">About SignQuest</h1>
+                    <div class="about-sect">
+                        <p>SignQuest is a web-based gamified learning platform for learning American Sign Language and 
+                            Emirati Sign Language. This website was designed to be accessible to all currently supports 
+                            20 signs for both sign languages, including both words and phrases commonly used in 
+                            real-world scenarios. SignQuest is currently being developed and will soon support fingerspelling 
+                            as well as more phrases for both sign languages!</p>
+                    </div>
+                    <div class="other-sects">
+                        <div class="thanks-sect">
+                            <h3>Thank You</h3>
+                            <p>This project would not have been possible without the help & support of my project supervisor, 
+                                the users who participated in the initial testing as well as my friends and family members!</p>
+                        </div>
+                        <div class="help">
+                            <h3>Helpful Resources</h3>
+                            <p>To learn more ASL signs you can visit <a href='https://www.youtube.com/@sign-language'>Bill Vicars</a> 
+                                channel, and for ESL, refer to <a href='https://www.youtube.com/@eslzayed6970/featured'>ESL Zayed</a> 
+                                channel & the <a href='https://www.za.gov.ae/en/Sign-Language-Dictionary/UAE-Sign-Language-Categories'>
+                                Official ESL Dictionary</a> provided by the Zayed Authority for People of Determination.</p>
+                        </div>
+                        <div class="privacy">
+                            <h3>Data Privacy</h3>
+                            <p>This platform values user privacy and will not record/save your videos. It will only extract numerical 
+                                data for measuring sign accuracy and storing your results but not actual video data.</p>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="showPaths">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                        <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                        <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                        <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                        <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                        <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            settings
+                        </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="path-section">
+                        <h1>Pick your World:</h1>
+                        <p>Note: you can learn both languages</p>
+                        <div class="paths">
+                            <a class="path" @click="showLevelPage('ASL', './img/usaflag.png')">
+                                <img src="./img/usaflag.png">
+                                <h4>American<br>Sign Language</h4>
+                            </a>
+                            <a class="path" @click="showLevelPage('ESL', './img/uaeflag.png')">
+                                <img src="./img/uaeflag.png">
+                                <h4>Emirati<br>Sign Language</h4>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="showLevels">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                            <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                            <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                            <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                            <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                            <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                                settings
+                            </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="path2">
+                        <img :src="pathImg" alt="image of chosen path">
+                    </div>
+                    <div class="levels-row">
+                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.ID)">
+                            <img :src="level.bgImage" class="lvl-img">
+                        </div>
+                    </div>
+                </div>
+                <div v-if="selectedLevel">
+                    <div v-for="line in selectedLevel.storyline" class="line" style="color:black;" v-if="">
+                        {{line.N || line.P}}
+                        {{ line.S || " "}}
+                    </div>
+                </div>
+                <div v-if="showTutorial">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                            <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                            <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                            <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                            <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                            <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                                settings
+                            </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tut-pg">
+                        <h1>Tutorial Videos</h1>
+                        <div class="top-menu">
+                            <input class="search-bar" type="text" placeholder="Search for tutorial by name/path"/> <!-- v-model.trim="searchQuery" -->
+                            <div class="sort-menu">
+                                <label for="sortBy">Sort By:</label>
+                                <select id="sortBy"> <!-- v-model="sortBy" -->
+                                    <option value="selected" selected>Select</option>
+                                    <option value="level">Name</option>
+                                    <option value="length">Path</option>
+                                </select>
+                            </div>
+                            <div class="order-menu">
+                                <label for="orderBy">Order By:</label>
+                                <select id="orderBy"><!-- v-model="orderBy" -->
+                                    <option value="selected" selected>Select</option>
+                                    <option value="asc">A-Z</option>
+                                    <option value="desc">Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="showProfile">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                            <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                            <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                            <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                            <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                            <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                                settings
+                            </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prof-sect">
+                        <img :src="this.loggedInUser.image">
+                        <div class="prof-details">
+                            <h3>{{ this.loggedInUser.username }}</h3>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="showLeaderboard">
+                    <div class="header">
+                        <h1 v-text="sitename"></h1>
+                        <div class="nav-menu">
+                            <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
+                            <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
+                            <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
+                            <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
+                            <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                                settings
+                            </p>
+                        </div>
+                        <div class="settings_box" v-if="showSettings">
+                            <h1>Settings</h1>
+                            <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
+                            <p>Theme:</p>
+                            <div>
+                                <input type="radio" id="light" name="display" value="lock1">
+                                <label class="display-type" for="light">Light</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="dark" name="display" value="lock2">
+                                <label class="display-type" for="dark">Dark</label>
+                            </div>
+                            <a @click="showLogoutDialogue()">Logout</a>
+                        </div>
+                        <div class="dialogue-box" v-if="showLogout">
+                            <p>Are you sure you want to logout?</p>
+                            <div class="box-btn">
+                                <button @click="logoutUser()">Yes</button>
+                                <button @click="showLogoutDialogue()">No</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ld-sect">
+                        <div class="ld-head">
+                            <h3>Leaderboard</h3>
+                            <h3>Sign Starters</h3> <!-- change according to user's league name -->
+                        </div>
+                        <div class="ld-table">
+                            <div class="ld-row" v-for="rank in leaderboard">
+                                <p class="ld-rank">{{ rank.rank }}</p>
+                                <p class="ld-name">{{ rank.username }}</p>
+                                <p class="ld-xp">{{ rank.totalXP }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="text/javascript">
+        // create instance of vue
+        let gameapp = new Vue({
+            el:'#app', //mount vue to element with 'app' as id
+            data: {
+                sitename: "SignQuest",
+                showSignUp:false,
+                showLogin: false,
+                showHome: false,
+                showPaths: false,
+                showLevels: false, //toggle for levels page
+                showLesson: false,
+                showAbout: false,
+                showTutorial: false,
+                showProfile: false,
+                showLeaderboard: false,
+                showSettings: false,
+                showLogout: false,
+                selectedPath: "",
+                selectedLevel: "",
+                pathImg: "",
+                levels: [],
+                selectedID: "",
+                ASL: [],
+                ESL: [],
+                user: {
+                    "username": "",
+                    "email": "",
+                    "loggedIn": false,
+                    "badges": [],
+                    "selectedPath": "",
+                    "completedLevels": "",
+                    "totalXP": 0,
+                    "image": "def_prof.png"
+                },
+                allUsers: [],
+                loggedInUser: {},
+                login_user: {
+                    uname: "",
+                    email: ""
+                },
+                cart: [], // array to store items added to the cart (stores lesson ids)
+                confirmCart: [], //stores unique id of lessons in cart
+                sortBy: "selected", //sorting menu
+                orderBy: "asc", //order menu - ascending/descending
+                searchQuery: "", //stores search-bar's input
+            },
+            //this function is called as soon as the page loads
+            created() {
+                // this.getLessons(); //fetch lesson data
+                fetch("http://localhost:3000/collection/users")
+                    .then(res => res.json())
+                    .then(data => {
+                        this.allUsers = data.map(users => ({
+                            ...users,
+                            image: 'http://localhost:3000/static/'+users.image
+                        }));
+                        this.loggedInUser = this.allUsers.find(user => user.loggedIn == true);
+                        if (this.loggedInUser) {
+                                this.showHomePage();
+                        } else {
+                            this.showSignupPage();
+                        }
+                        console.log('users loaded:', this.allUsers);
+                    })
+                    .catch(err => {
+                        console.error('fetch error: ', err);
+                    });
+                console.log(this.loggedInUser || "no user logged in!");
+            },
+            //watches for change in search bar and filters lesson data accordingly
+            watch: {
+                searchQuery: {
+                    handler: 'getLessons',
+                    immediate: false
+                }
+            },
+            methods: {
+                showSignupPage() {
+                    this.showSignUp = true;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showLoginPage() {
+                    this.showSignUp = false;
+                    this.showLogin = true;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showHomePage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = true;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showAboutPage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= true;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showLessonPage(levelID) {
+                    this.selectedID = levelID;
+                    const levels = [...this.levels];
+                    for (let i=0; i < levels.length; i++){
+                        if (levels[i]["id"] === this.selectedID){
+                            this.selectedLevel = levels[i];
+                            break;
+                        }
+                    }
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = true;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showLevelPage(pathChosen, pathImage) {
+                    this.selectedPath = pathChosen;
+                    this.pathImg = pathImage;
+                    if (this.selectedPath === 'ASL') {
+                        fetch("http://localhost:3000/collection/asl")
+                            .then(res => res.json())
+                            .then(data => {
+                                this.levels = data.map(asl => ({
+                                    ...asl,
+                                    bgImage: 'http://localhost:3000/static/'+asl.bgImage
+                                }));
+                                console.log('levels loaded:', this.levels);
+                            })
+                            .catch(err => {
+                                console.error('fetch error: ', err);
+                            });
+                    } else {
+                        fetch("http://localhost:3000/collection/esl")
+                            .then(res => res.json())
+                            .then(data => {
+                                this.levels = data.map(esl => ({
+                                    ...esl,
+                                    bgImage: 'http://localhost:3000/static/'+esl.bgImage
+                                }));
+                                console.log('levels loaded:', this.levels);
+                            })
+                            .catch(err => {
+                                console.error('fetch error: ', err);
+                            });
+                        this.levels = [...this.ESL];
+                    }
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = true;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showPathPage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = true;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showTutorialPage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = true;
+                    this.showProfile = false;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showProfilePage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = true;
+                    this.showLeaderboard = false;
+                    this.showSettings = false;
+                },
+                showLeaderboardPage() {
+                    this.showSignUp = false;
+                    this.showLogin = false;
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showLeaderboard = true;
+                    this.showSettings = false;
+                },
+                showSettingsPage() {
+                    this.showSettings = !this.showSettings;
+                },
+                showLogoutDialogue() {
+                    this.showLogout = !this.showLogout;
+                    this.showSettings = false;
+                },
+                logoutUser() {
+                    fetch('http://localhost:3000/collection/users/'+this.loggedInUser._id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json', //set data type as json
+                        },
+                        body: JSON.stringify({loggedIn:false}),
+                    })
+                    .then(response => response.json())
+                    .then(updatedStatus => {
+                        console.log(updatedStatus)
+                        this.loggedInUser = {};
+                        this.showLogout = false;
+                        this.showLoginPage();
+                    })
+                    .catch((error) => {
+                        console.log("fetch error: ", error);
+                    });
+                },
+                //method to fetch lessons from server along with filtered lessons if search query is given by user
+                // getLessons() {
+                //     console.log('requesting data from server ...')
+
+                //     const searchQ = this.searchQuery.trim();
+                //     let fetchURL = "https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons"
+                //     if (searchQ !== ""){
+                //         fetchURL = 'https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/search?q='+searchQ;
+                //     }
+
+                //fetch(fetchURL)
+                //     .then(res => res.json())
+                //     .then(data => {
+                //         this.lessons = data.map(lesson => ({
+                //             ...lesson,
+                //             image: 'https://stephanie-cst3144-after-school-club.onrender.com/'+lesson.image
+                //         }));
+                //         console.log('lessons loaded:', this.lessons);
+                //     })
+                //     .catch(err => {
+                //         console.error('fetch error: ', err);
+                //     });
+                // },
+                // //method to add lesson to cart
+                // addToCart(lesson) {
+                //     this.cart.push(lesson.id);
+                //     if (!this.confirmCart.includes(lesson.id)){
+                //         this.confirmCart.push(lesson.id);
+                //     }
+                //     //update available seats for specific lesson
+                //     fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
+                //         method: 'PUT',
+                //         headers: {
+                //             'Content-Type': 'application/json', //set data type as json
+                //         },
+                //         body: JSON.stringify({availableSeats:lesson.availableSeats - this.cartCount(lesson.id)}),
+                //     })
+                //     .then(response => response.json())
+                //     .then(updatedLesson => {
+                //         console.log("updated: ", updatedLesson);
+                //     })
+                //     .catch((error) => {
+                //         console.log("fetch error: ", error);
+                //     });
+                // },
+                // //checks if seats are available to add to cart
+                // canAddToCart(lesson) {
+                //     return lesson.availableSeats > this.cartCount(lesson.id);
+                // },
+                // //toggles view between lessons and cart
+                // showShoppingCart() {
+                //     this.showLesson = this.showLesson ? false : true;
+                // },
+                // //checks if cart has lessons
+                // enableCart() {
+                //     return this.cartItemCount > 0;
+                // },
+                // //counts number of specific lesson id in the cart
+                // cartCount(id) {
+                //     let count = 0;
+                //     for (let i = 0; i < this.cart.length; i++){
+                //         if (this.cart[i] === id) {
+                //             count++;
+                //         }
+                //     }
+                //     return count;
+                // },
+                // //removes either a seat or the entire lesson from cart
+                // removeFromCart(lesson) {
+                //     const lessonCount = this.cartCount(lesson.id);
+
+                //     if (lessonCount > 1) {
+                //         const index = this.cart.indexOf(lesson.id);
+                //         if (index !== -1) {
+                //             this.cart.splice(index, 1);
+                //         }
+                //     } 
+                //     else if (lessonCount === 1) {
+                //         this.cart = this.cart.filter(id => id !== lesson.id);
+                //         this.confirmCart = this.confirmCart.filter(id => id !== lesson.id);
+                //     }
+
+                //     if (this.cart.length === 0){
+                //         this.showLesson = true;
+                //     }
+                //     //updates seats available for specific lesson
+                    // fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
+                    //     method: 'PUT',
+                    //     headers: {
+                    //         'Content-Type': 'application/json', //set data type as json
+                    //     },
+                    //     body: JSON.stringify({availableSeats:lesson.availableSeats - this.cartCount(lesson.id)}),
+                    // })
+                    // .then(response => response.json())
+                    // .then(updatedLesson => {
+                    //     console.log("updated: ", updatedLesson);
+                    // })
+                    // .catch((error) => {
+                    //     console.log("fetch error: ", error);
+                    // });
+                // },
+                // //submits booking form and creates a new order
+                // submitForm() {
+                //     const namePattern = /^[A-Za-z\s]+$/;
+                //     const phoneNumPattern = /^05\d{8}$/;
+                //     const emailIDPattern = /^[\w._]+@[\w]+\.(com)$/;
+
+                //     const valid = (
+                //         (this.booking.fullname !== "") && (namePattern.test(this.booking.fullname))) && 
+                //         (phoneNumPattern.test(this.booking.phone)) && 
+                //         (emailIDPattern.test(this.booking.email));
+
+                //     if (valid) {
+                //         const cart_info = {};
+                        
+                //         for (let i = 0; i < this.confirmCart.length; i++) {
+                //             const cart_item = this.lessons.find(lesson => lesson.id === this.confirmCart[i]);
+                //             cart_info[cart_item.name] = this.cartCount(cart_item.id);
+                //         }
+
+                //         const newOrder = {
+                //             name: this.booking.fullname,
+                //             phone: this.booking.phone,
+                //             email: this.booking.email,
+                //             cart_info: cart_info
+                //         };
+
+                //         console.log("newOrder:", newOrder);
+                //         //posts new order to server
+                //         fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/orders', {
+                //             method: 'POST',
+                //             headers: { 'Content-Type': 'application/json' },
+                //             body: JSON.stringify(newOrder)
+                //         })
+                //         .then(res => {
+                //             return res.json()
+                //         })
+                //         .then(responseJSON => {
+                //             console.log("added new order:", responseJSON);
+
+                //             alert("Seats booked successfully!");
+
+                //             // clear form and cart
+                //             this.booking.fullname = "";
+                //             this.booking.phone = "";
+                //             this.booking.email = "";
+
+                //             this.cart = [];
+                //             this.confirmCart = [];
+
+                //             //reset all lessons to have 5 available seats
+                //             const updatedLessons = this.lessons.map(lesson => {
+                //                 return fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
+                //                     method: 'PUT',
+                //                     headers: {
+                //                         'Content-Type': 'application/json', //set data type as json
+                //                     },
+                //                     body: JSON.stringify({availableSeats:5}),
+                //                 });
+                //             });
+                //             //goes to next part only after all lessons are updated
+                //             return Promise.all(updatedLessons);
+
+                //         })
+                //         .then(() => {
+                //             //fetches lessons again to update frontend
+                //             return fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons');
+                //         })
+                //         .then(response => {
+                //             return response.json();
+                //         })
+                //         .then(updatedLessons => {
+                //             //updates lessons array and goes back to lesson page
+                //             this.lessons = updatedLessons.map(lesson => ({
+                //                 ...lesson,
+                //                 image: 'https://stephanie-cst3144-after-school-club.onrender.com/'+lesson.image
+                //             }));
+                //             this.showLesson = true;
+                //         })
+                //         .catch(error => {
+                //             console.error("fetch error:", error);
+                //         });
+                //     }
+                // },
+                submitSignupForm() {
+                    if (!this.canSubmitSignupForm()) {
+                        alert("Please enter a valid username (letters only) and a proper email address.");
+                        return; // Stop the function here
+                    }
+
+                    const usernameExists = this.allUsers.find(user => user.username === this.user.username);
+                    const emailExists = this.allUsers.find(user => user.email === this.user.email)
+                    if (!usernameExists && !emailExists) {    
+                        const newUser = {...this.user};
+                        newUser["userID"] = "user" + (this.allUsers.length+1);
+
+                        fetch('http://localhost:3000/collection/users', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newUser)
+                        })
+                        .then(res => res.json())
+                        .then(responseJSON => {
+                            alert("Your account has been created!");
+                            console.log("added new user:", responseJSON);
+                            this.user = {
+                                "username": "",
+                                "email": "",
+                                "loggedIn": false,
+                                "badges": [],
+                                "selectedPath": "",
+                                "completedLevels": "",
+                                "totalXP": 0,
+                                "image": "def_prof.png"
+                            }
+
+                            document.getElementById("signup-form").reset()
+                            this.showLoginPage()
+                        });
+                    } else {
+                        if (usernameExists) {
+                            alert("Username already exists!");
+                        } else {
+                            alert("This email id has already been registered. Please login!");
+                        }
+                    }
+                },
+                submitLoginForm() {
+                    if (!this.canSubmitLoginForm()) {
+                        alert("Invalid username or password. If you haven't signed up, please create an account!");
+                        return;
+                    }
+
+                    const userExists = this.allUsers.find(user => user.username === this.login_user.uname && user.email === this.login_user.email);
+                    if (userExists) {
+                        fetch('http://localhost:3000/collection/users/'+userExists._id, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json', //set data type as json
+                            },
+                            body: JSON.stringify({loggedIn:true}),
+                        })
+                        .then(response => response.json())
+                        .then(updatedStatus => {
+                            console.log("Server response:", updatedStatus);
+                            this.loggedInUser = userExists;
+                            this.loggedInUser.loggedIn = true;
+                            // Clear form
+                            this.login_user.uname = "";
+                            this.login_user.email = "";
+                            this.showHomePage();
+                        })
+                        .catch((error) => {
+                            console.log("fetch error: ", error);
+                        });   
+                    } else {
+                        alert("Invalid username or password.")
+                    }
+                },
+                canSubmitSignupForm() {
+                    const namePattern = /^[A-Za-z0-9\s]+$/;
+                    const emailIDPattern = /^[\w._]+@[\w]+.com$/;
+
+                    return (((this.user.username !== "") && (namePattern.test(this.user.username))) && (emailIDPattern.test(this.user.email)));
+                },
+                canSubmitLoginForm() {
+                    const namePattern = /^[A-Za-z0-9\s]+$/;
+                    const emailIDPattern = /^[\w._]+@[\w]+.com$/;
+
+                    return (((this.login_user.uname !== "") && (namePattern.test(this.login_user.uname))) && (emailIDPattern.test(this.login_user.email)));
+                }
+            },
+            computed: {
+                leaderboard() {
+                    return [...this.allUsers].sort((a,b) => a.totalXP - b.totalXP).map((user, index) => ({
+                        ...user,
+                        "rank": index+1
+                    }));
+                },
+                pageBackground() {
+                    if (this.showLesson && this.selectedLevel && this.selectedLevel.bgImage) {
+                        return {
+                            backgroundImage: `url(${this.selectedLevel.bgImage})`,
+                            backgroundSize: 'cover',
+                            backgroundAttachment: 'fixed',
+                            backgroundPosition: 'center',
+                            fontFamily: '"Poppins", sans-serif',
+                            height: '100vh',
+                            width: '100vw',
+                            margin: '0',
+                            padding: '0',
+                            zIndex: '-1'
+                        };
+                    } else if (this.showSignUp || this.showLogin) {
+                        return {
+                            background: 'linear-gradient(#000060, #4b1d5e)',
+                            margin: '0',
+                            padding: '0',
+                            backgroundPosition: 'center',
+                            backgroundAttachment: 'fixed',
+                            height: '100vh',
+                            width: '100vw',
+                            color: 'white',
+                            overflow: 'hidden',
+                            fontFamily: '"Poppins", sans-serif',
+                            zIndex: '-1'
+                        };
+                    } else {
+                        return {
+                            background: 'linear-gradient(#14008f, #b159cb)',
+                            margin: '0',
+                            padding: '0',
+                            backgroundPosition: 'center',
+                            backgroundAttachment: 'fixed',
+                            height: '100vh',
+                            width: '100vw',
+                            color: 'white',
+                            overflow: 'hidden',
+                            fontFamily: '"Poppins", sans-serif',
+                            zIndex: '-1'
+                        };
+                    }
+                },
+                // cartItemCount() {
+                //     return this.cart.length || "";
+                // },
+                // selectedLessons() {
+                //     return this.lessons.filter(lesson => this.confirmCart.includes(lesson.id));
+                // },
+                // //filters and sorts lessons according to user input
+                // sortedLessons() {
+                //     let lessonsSorted = this.lessons.slice(0);
+
+                //     if (this.sortBy === "selected") {
+                //         return lessonsSorted;
+                //     }
+                //     console.log("Lessons sorted: ", lessonsSorted);
+
+                //     lessonsSorted.sort((a,b) => {
+                //         let attr1 = "";
+                //         let attr2 = "";
+
+                //         if (this.sortBy === "name") {
+                //             attr1 = a.name.toLowerCase();
+                //             attr2 = b.name.toLowerCase();
+                //         }
+                //         else if (this.sortBy === "location") {
+                //             attr1 = a.location.toLowerCase();
+                //             attr2 = b.location.toLowerCase();
+                //         }
+                //         else if (this.sortBy === "price") {
+                //             attr1 = a.price;
+                //             attr2 = b.price;
+                //         }
+                //         else if (this.sortBy === "seats") {
+                //             attr1 = (a.availableSeats - this.cartCount(a.id));
+                //             attr2 = (b.availableSeats - this.cartCount(b.id));
+                //         }
+
+                //         let result = 0;
+                //         if (attr1 < attr2){
+                //             result = -1;
+                //         }
+                //         if (attr1 > attr2){
+                //             result = 1;
+                //         }
+
+                //         //apply ascending or descending order
+                //         return this.orderBy === "desc" ? -result : result;
+                //     });
+
+                //     return lessonsSorted;
+                // }
+            }
+        });
+    </script>
+</body>
+</html>

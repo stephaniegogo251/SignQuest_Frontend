@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #camera-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        video {
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background-color: #000;
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
+        }
+    </style>
+    <title>Test Vue Camera</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/vision_bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ sitename }} - Camera Test</h1>
+        
+        <p v-if="isModelLoading">⏳ Loading Sign Language Model...</p>
+        <p v-else-if="model" style="color: green;">✅ Model Ready</p>
+
+        <div id="camera-container"style="position: relative; display: inline-block;">
+            <video ref="webcam" autoplay playsinline></video>
+            <canvas ref="canvas" style="position: absolute; left: 0; top: 0; transform: scaleX(-1);"></canvas>
+            
+            <div v-if="predictionText" class="prediction-box">
+                <h2>Detected: {{ predictionText }}</h2>
+            </div>
+
+            <p v-if="cameraError" style="color: red;">{{ cameraError }}</p>
+            <br>
+            <button @click="initCamera" :disabled="isModelLoading">Start Camera</button>
+        </div>
+    </div>
+    <script type="text/javascript">
+        // create instance of vue
+        let gameapp = new Vue({
+            el:'#app', //mount vue to element with 'app' as id
+            data: {
+                sitename: "SignQuest",
+                cameraError: null,
+                stream: null,
+                showHome: true,
+                showPaths: false,
+                showLevels: false, //toggle for levels page
+                showAbout: false,
+                showTutorial: false,
+                showProfile: false,
+                showSettings: false,
+                selectedPath: "",
+                pathImg: "",
+                levels: [],
+                cameraError: null,
+                stream: null,
+                model: null, // Store the ML model here
+                isModelLoading: false,
+                predictionText: "Waiting for gesture...",
+                labels: ['hello', 'how are you', 'thanks'],
+                handLandmarker: null,
+                canvasCtx: null,
+                filesetResolver: null,
+                ASL: [
+                    {
+                        id: "LVL01",
+                        storyline: {
+                            pg1: {img_path:"", N:"You are walking to the train station and meet the station master to get your ticket!", S:""},
+                            pg2: {img_path:"", N:"Sign hello to begin the conversation...", S:"Hello"},
+                            pg3: {img_path:"", P:"Station Master:  Hello! Nice to meet you!", S:"Nice to meet you too"},
+                            pg4: {img_path:"", P:"Station Master:  So, what do you need?", S:"1 Ticket"},
+                            pg5: {img_path:"", P:"Station Master:  Okay, anything else?", S:"No"},
+                            pg6: {img_path:"", P:"Station Master:  Alright, here's your ticket!", S:""},
+                            pg7: {img_path:"", N:"The station master hands over your ticket", S:""},
+                            pg8: {img_path:"", P:"Station Master:  Have a safe trip!", S:""},
+                            // pg9: badgePage
+                        },
+                        bgImage: "img/asl/level1/lvl1.1.png",
+                        status: "Unlocked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL02",
+                        storyline: {
+                            pg1: {img_path:"", N:"You have reached the destination and start walking to find a cafe", S:""},
+                            pg2: {img_path:"", N:"But you notice someone has fainted! Sign for help!", S:"He needs help"},
+                            pg3: {img_path:"", N:"A passerby notices and runs to you", S:""},
+                            pg4: {img_path:"", P:"Passerby: What's wrong?", S:"He fainted"},
+                            pg5: {img_path:"", P:"Passerby: Oh no, is it serious?", S:"Yes, he needs a doctor"},
+                            pg6: {img_path:"", P:"Passerby: Alright, I'll get my car. Are you busy?", S:"No, I can wait"},
+                            pg7: {img_path:"", N:"You see the car coming and help put the passenger in the back", S:""},
+                            pg8: {img_path:"", P:"Passerby: I'll take it from here. Thank you for your help!", S:"You're welcome"},
+                            pg9: {img_path:"", N:"He drives away and you continue to the cafe", S:""},
+                            // pg10: badgePage
+                        },
+                        bgImage: "img/asl/level2/lvl2.1.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL03",
+                        storyline: {
+                            pg1: {img_path:"", N:"You enter the cafe and go to the counter", S:""},
+                            pg2: {img_path:"", P:"Barista: Hi, welcome to our cafe! How can I help you?", S:"Hello! I want coffee, please"},
+                            pg3: {img_path:"", P:"Barista: Alright. Would you like it hot or cold?", S:"Hot, please"},
+                            pg4: {img_path:"", P:"Barista: What size would you like? Large, medium, or small?", S:"Small"},
+                            pg5: {img_path:"", P:"Barista: Great! Would you like to have some cake with it?", S:"Yes, 3 please"},
+                            pg6: {img_path:"", N:"The barista gets 3 slices from the cake section and sets it up", S:""},
+                            pg6: {img_path:"", N:"You hand over the money and get the change back", S:""},
+                            pg7: {img_path:"", P:"Barista: Have a great day!", S:"Thank you, Bye!"},
+                            // pg8: badgePage
+                        },
+                        bgImage: "img/asl/level3/lvl3.1.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL04",
+                        storyline: {
+                            pg1: {img_path:"", N:"You've had your coffee and cake...", S:""},
+                            pg2: {img_path:"", N:"but you realize that you're not sure how to get to the hotel you booked!", S:""},
+                            pg3: {img_path:"", N:"You go the nearest person and tell them you're lost", S:"I'm Lost! Help me, please"},
+                            pg4: {img_path:"", P:"Passerby: Of course! Where do you want to go?", S:"This hotel"},
+                            pg5: {img_path:"", N:"You show the girl the address to the hotel you booked", S:""},
+                            pg6: {img_path:"", P:"Passerby: I know where that is. I can take you there if you'd like?", S:"Yes, walk with me please"},
+                            pg7: {img_path:"", N:"You start walking with them and introduce yourselves", S:""},
+                            pg8: {img_path:"", P:"Passerby: So are you planning on living here?", S:"No, just travelling"},
+                            pg9: {img_path:"", P:"Passerby: Oh, that's nice!", S:""},
+                            pg10: {img_path:"", N:"You walk another 5 minutes and reach your hotel", S:""},
+                            pg11: {img_path:"", P:"Passerby: That was nice! I'd love to show you around the place tomorrow!", S:""},
+                            pg12: {img_path:"", N:"You share your contact details with each other", S:"Thank you, I'll call you"},
+                            pg13: {img_path:"", P:"Passerby: Okay, bye then!", S:"Bye"},
+                            pg14: {img_path:"", N:"You head to the hotel smiling as you've found a friend", S:""},
+                            // pg15: badgePage
+                        },
+                        bgImage: "img/asl/level4/lvl4.1.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                ],
+                ESL: [
+                    {
+                        id: "LVL01",
+                        storyline: {
+                            N:["imgPath", "أنت في محطة المترو ولكن بطاقة نول الخاصة بك لا تحتوي على رصيد كاف", "You are at the metro station but your NOL card does not have enough money"],
+                            N:["imgPath", "تؤشر بـ 'السلام عليكم' لبدء المحادثة", "Sign 'Salaam Alaikum' to start the conversation"],
+                            S:["imgPath", "السلام عليكم", "Salaam Alaikum"],
+                            P:["imgPath", "موظف المترو: وعليكم السلام، يرجى وضع بطاقتك هنا", "Metro Staff: Walaikum asalaam, please place your card here"],
+                            S:["imgPath", "Nice to meet you too"],
+                            P:["imgPath", "Station Master:  So, what do you need?"],
+                            S:["imgPath", "1 Ticket"],
+                            P:["imgPath", "Station Master:  Okay, anything else?"],
+                            S:["imgPath", "No"],
+                            P:["imgPath", "Station Master:  Alright, here's your ticket!"],
+                            N:["imgPath", "The station master hands over your ticket"],
+                            P:["imgPath", "Station Master:  Have a safe trip!"],
+                            S:["imgPath", "Thank you"]
+                        },
+                        bgImage: "img/esl/level1/lvl1.1.png",
+                        status: "Unlocked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL02",
+                        storyline: {
+                            N:["imgPath", "You have reached the destination and start walking to find a cafe"],
+                            N:["imgPath", "But you notice someone has fainted! Sign for help!"],
+                            S:["imgPath", "He needs help"],
+                            N:["imgPath", "A passerby notices and runs to you"],
+                            P:["imgPath", "Passerby: What's wrong?"],
+                            S:["imgPath", "He fainted"],
+                            P:["imgPath", "Oh no, is it serious?"],
+                            S:["imgPath", "Yes, he needs a doctor"],
+                            P:["imgPath", "Passerby: Alright, I'll get my car. Are you busy?"],
+                            S:["imgPath", "No, I can wait"],
+                            N:["imgPath", "You see the car coming and help put the passenger in the back"],
+                            P:["imgPath", "Passerby: I'll take it from here. Thank you for your help!"],
+                            S:["imgPath", "You're welcome"],
+                            N:["imgPath", "He drives away and you continue to the cafe"]
+                        },
+                        bgImage: "img/esl/level2/lvl2.1.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL03",
+                        storyline: {
+                            N:["imgPath", "You enter the cafe and go to the counter"],
+                            P:["imgPath", "Barista: Hi, welcome to our cafe! How can I help you?"],
+                            S:["imgPath", "Hello! I want coffee, please"],
+                            P:["imgPath", "Barista: Alright. Would you like it hot or cold?"],
+                            S:["imgPath", "Hot, please"],
+                            P:["imgPath", "Barista: What size would you like? Large, medium, or small?"],
+                            S:["imgPath", "Small"],
+                            P:["imgPath", "Barista: Great! Would you like to have some cake with it?"],
+                            S:["imgPath", "Yes, 3 please"],
+                            N:["imgPath", "The barista gets 3 slices from the cake section and sets it up"],
+                            N:["imgPath", "You hand over the money and get the change back"],
+                            P:["imgPath", "Barista: Have a great day!"],
+                            S:["imgPath", "Thank you, Bye!"]
+                        },
+                        bgImage: "img/esl/level3/lvl3.2.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                    {
+                        id: "LVL04",
+                        storyline: {
+                            N:["imgPath", "You've had your coffee and cake..."],
+                            N:["imgPath", "but you realize that you're not sure how to get to the hotel you booked!"],
+                            N:["imgPath", "You go the nearest person and tell them you're lost"],
+                            S:["imgPath", "I'm Lost! Help me, please"],
+                            P:["imgPath", "Passerby: Of course! Where do you want to go?"],
+                            S:["imgPath", "This Hotel"],
+                            N:["imgPath", "You show the girl the address to the hotel you booked"],
+                            P:["imgPath", "Passerby: I know where that is. I can take you there if you'd like?"],
+                            S:["imgPath", "Yes, walk with me please"],
+                            N:["imgPath", "You start walking with them and introduce yourselves"],
+                            P:["imgPath", "Passerby: So are you planning on living here?"],
+                            S:["imgPath", "No, just travelling"],
+                            P:["imgPath", "Passerby: Oh, that's nice!"],
+                            N:["imgPath", "You walk another 5 minutes and reach your hotel"],
+                            P:["imgPath", "Passerby: That was nice! I'd love to show you around the place tomorrow!"],
+                            N:["imgPath", "You share your contact details with each other"],
+                            S:["imgPath", "Thank you, I'll call you"],
+                            P:["imgPath", "Passerby: Okay, bye then!"],
+                            S:["imgPath", "Bye"],
+                            N:["imgPath", "You head to the hotel smiling as you've found a friend"],
+                        },
+                        bgImage: "img/esl/level4/lvl4.1.png",
+                        status: "Locked",
+                        score: 0,
+                        levelXP: 0,
+                    },
+                ],
+                cart: [], // array to store items added to the cart (stores lesson ids)
+                confirmCart: [], //stores unique id of lessons in cart
+                booking: { //object to store booking details
+                    fullname: "",
+                    phone: "",
+                    email: ""
+                },
+                sortBy: "selected", //sorting menu
+                orderBy: "asc", //order menu - ascending/descending
+                searchQuery: "", //stores search-bar's input
+            },
+            //this function is called as soon as the page loads
+            created() {
+                // this.getLessons(); //fetch lesson data
+                this.loadMLModel();
+                this.setupMediaPipe()
+                    .then(() => {
+                        console.log("MediaPipe Ready");
+                        this.loadMLModel();
+                    })
+                    .catch(err => {
+                        this.cameraError = "Init Error: " + err.message;
+                    });
+            },
+            //watches for change in search bar and filters lesson data accordingly
+            watch: {
+                searchQuery: {
+                    handler: 'getLessons',
+                    immediate: false
+                }
+            },
+            methods: {
+                loadMLModel() {
+                    this.isModelLoading = true;
+                    console.log("Loading model...");
+
+                    // Replace with your actual backend URL where the model is hosted
+                    const modelUrl = 'http://localhost:3000/static/models/model.json';
+
+                    tf.loadLayersModel(modelUrl)
+                        .then(loadedModel => {
+                            this.model = loadedModel;
+                            this.isModelLoading = false;
+                            console.log("Model loaded successfully!");
+                        })
+                        .catch(err => {
+                            this.isModelLoading = false;
+                            this.cameraError = "Failed to load ML model: " + err.message;
+                        });
+                },
+                setupMediaPipe() {
+                    this.isModelLoading = true;
+                    
+                    // Check if the library loaded under 'tasksVision' or the global 'window'
+                    const vision = window.tasksVision || tsvision; 
+
+                    return vision.FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+                    )
+                    .then(resolver => {
+                        return vision.HandLandmarker.createFromOptions(resolver, {
+                            baseOptions: {
+                                modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+                                delegate: "GPU"
+                            },
+                            runningMode: "VIDEO",
+                            numHands: 2
+                        });
+                    })
+                    .then(landmarker => {
+                        this.handLandmarker = landmarker;
+                        this.isModelLoading = false;
+                        console.log("Hand Landmarker Ready");
+                    });
+                },
+
+                initCamera() {
+                    this.cameraError = null;
+                    
+                    navigator.mediaDevices.getUserMedia({
+                        video: { width: 640, height: 480 },
+                        audio: false
+                    })
+                    .then(stream => {
+                        this.stream = stream;
+                        const video = this.$refs.webcam;
+                        video.srcObject = stream;
+                        
+                        video.onloadedmetadata = () => {
+                            video.play();
+                            // Match canvas to video dimensions
+                            this.$refs.canvas.width = video.videoWidth;
+                            this.$refs.canvas.height = video.videoHeight;
+                            this.canvasCtx = this.$refs.canvas.getContext("2d");
+                            
+                            this.startDetection(); 
+                        };
+                    })
+                    .catch(err => {
+                        this.cameraError = "Camera Error: " + err.message;
+                    });
+                },
+
+                predict() {
+                    const video = this.$refs.webcam;
+                    const canvas = this.$refs.canvas;
+                    const startTimeMs = performance.now();
+
+                    // 1. Detect Landmarks (Synchronous call for video frames)
+                    const results = this.handLandmarker.detectForVideo(video, startTimeMs);
+
+                    // 2. Clear Canvas
+                    this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    if (results.landmarks && results.landmarks.length > 0) {
+                        results.landmarks.forEach(landmarks => {
+                            // Draw Visuals (Landmarks and Connectors)
+                            drawConnectors(this.canvasCtx, landmarks, HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 5 });
+                            drawLandmarks(this.canvasCtx, landmarks, { color: "#FF0000", lineWidth: 2 });
+
+                            // 3. Prepare data for the TF.js model (flat array of 63: x,y,z for 21 points)
+                            const inputData = landmarks.map(l => [l.x, l.y, l.z]).flat();
+                            const tensor = tf.tensor2d([inputData]);
+
+                            // 4. Promise-based prediction
+                            this.model.predict(tensor).data()
+                                .then(data => {
+                                    const maxVal = Math.max(...data);
+                                    const predictedIndex = data.indexOf(maxVal);
+
+                                    if (maxVal > 0.85) {
+                                        this.predictionText = this.labels[predictedIndex];
+                                    } else {
+                                        this.predictionText = "Scanning...";
+                                    }
+                                })
+                                .finally(() => {
+                                    // Cleanup memory after prediction
+                                    tensor.dispose();
+                                });
+                        });
+                    } else {
+                        this.predictionText = "No hand detected";
+                    }
+                },
+
+                startDetection() {
+                    // Run a loop to detect signs every 500ms
+                    setInterval(() => {
+                        if (this.model && this.stream) {
+                            this.predict();
+                        }
+                    }, 500);
+                },
+                showHomePage() {
+                    this.showHome = true;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showAboutPage() {
+                    this.showHome = false;
+                    this.showAbout= true;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showLessonPage() {
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = true;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showLevelPage(pathChosen, pathImage) {
+                    this.selectedPath = pathChosen;
+                    this.pathImg = pathImage;
+                    if (this.selectedPath === 'ASL') {
+                        this.levels = [...this.ASL];
+                    } else {
+                        this.levels = [...this.ESL];
+                    }
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = true;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showPathPage() {
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = true;
+                    this.showTutorial = false;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showTutorialPage() {
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = true;
+                    this.showProfile = false;
+                    this.showSettings = false;
+                },
+                showProfilePage() {
+                    this.showHome = false;
+                    this.showAbout= false;
+                    this.showLesson = false;
+                    this.showLevels = false;
+                    this.showPaths = false;
+                    this.showTutorial = false;
+                    this.showProfile = true;
+                    this.showSettings = false;
+                },
+                showSettingsPage() {
+                    this.showSettings = !this.showSettings;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
