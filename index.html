@@ -28,7 +28,7 @@
             </div>
             <div v-if="showLogin" class="login-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
-                    <img src="img/signquest_mp2.png" alt="signquest logo">
+                    <img src="https://signquest-backend-6ehr.onrender.com/signquest_mp2.png" alt="signquest logo">
                     <h1 v-text="sitename"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
@@ -221,7 +221,7 @@
                     <div class="path-section">
                         <h1>Pick your World:</h1>
                         <p>Note: you can learn both languages</p>
-                        <div class="paths" v-for="path in this.paths">
+                        <div class="paths">
                             <!-- <a class="path" @click="showLevelPage('ASL', './img/usaflag.png')">
                                 <img src="./img/usaflag.png">
                                 <h4>American<br>Sign Language</h4>
@@ -230,7 +230,7 @@
                                 <img src="./img/uaeflag.png">
                                 <h4>Emirati<br>Sign Language</h4>
                             </a> -->
-                            <a class="path" @click="showLevelPage(path.name, path.pathImg)">
+                            <a class="path" v-for="path in this.paths" @click="showLevelPage(path.name, path.pathImg)">
                                 <img :src="path.pathImg">
                                 <h4 v-html="path.desc"></h4>
                             </a>
