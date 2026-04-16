@@ -277,8 +277,8 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson" class="level-container">
-                    
+                <div v-if="showLesson" :class="level-class">
+
                 </div>
                 <div v-if="showTutorial">
                     <div class="header">
@@ -465,6 +465,7 @@
                 selectedPath: "",
                 paths: "",
                 selectedLevel: "",
+                levelClass: "",
                 levels: [],
                 selectedID: "",
                 ASL: [],
@@ -581,6 +582,33 @@
                         if (levels[i]["id"] === this.selectedID){
                             this.selectedLevel = levels[i];
                             break;
+                        }
+                    }
+                    if (this.selectedPath == "ASL") {
+                        if (this.selectedID == "LVL01") {
+                            this.levelClass = "asl-lvl-1";
+                        }
+                        else if (this.selectedID == "LVL02") {
+                            this.levelClass = "asl-lvl-2";
+                        }
+                        else if (this.selectedID == "LVL03") {
+                            this.levelClass = "asl-lvl-3";
+                        }
+                        else {
+                            this.levelClass = "asl-lvl-4";
+                        }
+                    } else {
+                        if (this.selectedID == "LVL01") {
+                            this.levelClass = "esl-lvl-1";
+                        }
+                        else if (this.selectedID == "LVL02") {
+                            this.levelClass = "esl-lvl-2";
+                        }
+                        else if (this.selectedID == "LVL03") {
+                            this.levelClass = "esl-lvl-3";
+                        }
+                        else {
+                            this.levelClass = "esl-lvl-4";
                         }
                     }
                     this.showSignUp = false;
