@@ -277,43 +277,8 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="selectedLevel && currentStoryPage" class="level-container">
-                    <div class="story-content">
-                        <h3 v-if="currentStoryPage.N" class="narrator-text">{{ currentStoryPage.N }}</h3>
-                        <p v-if="currentStoryPage.P" class="character-text">{{ currentStoryPage.P }}</p>
-                    </div>
-                    <div v-if="currentStoryPage.S" class="sign-box" :class="currentStoryPage.demoClass">
-                        <div class="demo-section">
-                            <p>Watch Demo:</p>
-                            <video :src="'./videos/' + currentStoryPage.S.toLowerCase() + '.mp4'" autoplay loop muted></video>
-                        </div>
-
-                        <div class="camera-section">
-                            <p>Your Turn: {{ currentStoryPage.S }}</p>
-                            <div class="webcam-wrapper">
-                                <video ref="video" v-show="false"></video>
-                                <canvas ref="canvas" width="640" height="480"></canvas>
-                            </div>
-                            <p v-if="signQueue.length > 0">
-                                Signing: <strong>{{ signQueue[activeSignIndex] }}</strong> 
-                                ({{ activeSignIndex + 1 }}/{{ signQueue.length }})
-                            </p>
-                        </div>
-                    </div>
-                    <div class="navigation-controls">
-                        <button 
-                            @click="nextPage" 
-                            :disabled="currentStoryPage.S && !isLineComplete"
-                            class="next-btn">
-                            {{ isLastPage ? 'Finish' : 'Next' }}
-                        </button>
-                    </div>
-                </div>
-                <div v-if="currentStoryPage.badgeID" class="badge-unlock">
-                    <h2>Level Complete!</h2>
-                    <div :class="currentStoryPage.badgeClass">
-                        <p>You earned the {{ currentStoryPage.badgeID }}!</p>
-                    </div>
+                <div v-if="showLesson" class="level-container">
+                    
                 </div>
                 <div v-if="showTutorial">
                     <div class="header">
@@ -500,11 +465,6 @@
                 selectedPath: "",
                 paths: "",
                 selectedLevel: "",
-                currentPageKey: "pg1",
-                activeSignIndex: 0,
-                isCorrect: false,
-                sequence: [],
-                selectedLevel: null,
                 levels: [],
                 selectedID: "",
                 ASL: [],
@@ -767,22 +727,6 @@
                     .catch((error) => {
                         console.log("fetch error: ", error);
                     });
-                },
-                onResults(results) {
-                    const drawColor = this.isCorrect ? '#00FF00' : '#FF0000';
-                    this.drawCustomLandmarks(results, drawColor);
-
-                    if (this.requiresSign && !this.isLineComplete) {
-                        const keypoints = this.extractKeypoints(results);
-                        this.sequence.push(keypoints);
-
-                        if (this.sequence.length === 30) {
-                            const sequenceSnapshot = [...this.sequence];
-                            this.sequence = []; // Reset for next sign
-                            
-                            this.checkSignWithBackend(sequenceSnapshot);
-                        }
-                    }
                 },
                 //method to fetch lessons from server along with filtered lessons if search query is given by user
                 // getLessons() {
@@ -1055,35 +999,6 @@
 
                     return (((this.login_user.uname !== "") && (namePattern.test(this.login_user.uname))) && (emailIDPattern.test(this.login_user.email)));
                 },
-                checkSignWithBackend(sequenceData) {
-                    // We send the path we saved earlier so Python knows which model to use
-                    fetch('https://your-render-url.com/api/predict', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            path: this.currentPath, 
-                            keypoints: sequenceData 
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        const currentTarget = this.signQueue[this.activeSignIndex].toLowerCase();
-                        
-                        if (data.sign.toLowerCase() === currentTarget && data.confidence > 0.7) {
-                            this.isCorrect = true;
-
-                            setTimeout(() => {
-                                this.isCorrect = false;
-                                this.activeSignIndex++; 
-
-                                if (this.isLineComplete) {
-                                    console.log("Line finished! Next button unlocked.");
-                                }
-                            }, 1000);
-                        }
-                    })
-                    .catch(err => console.error("AI Error:", err));
-                },                
                 extractKeypoints(results) {
                     // 1. Pose Landmarks (33 landmarks * 4 values: x, y, z, visibility) = 132 values
                     const pose = results.poseLandmarks 
@@ -1105,12 +1020,6 @@
                 }
             },
             computed: {
-                currentStoryPage() {
-                    if (!this.selectedLevel || !this.selectedLevel.storyline) {
-                    return null; 
-                    }
-                    return this.selectedLevel.storyline[this.currentPageKey];
-                },
                 leaderboard() {
                     return [...this.allUsers].sort((a,b) => a.totalXP - b.totalXP).map((user, index) => ({
                         ...user,
