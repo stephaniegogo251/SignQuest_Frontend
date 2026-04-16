@@ -1105,6 +1105,12 @@
                 }
             },
             computed: {
+                currentStoryPage() {
+                    if (!this.selectedLevel || !this.selectedLevel.storyline) {
+                    return null; 
+                    }
+                    return this.selectedLevel.storyline[this.currentPageKey];
+                },
                 leaderboard() {
                     return [...this.allUsers].sort((a,b) => a.totalXP - b.totalXP).map((user, index) => ({
                         ...user,
