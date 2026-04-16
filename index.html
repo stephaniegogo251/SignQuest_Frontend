@@ -272,13 +272,13 @@
                         <img :src="pathImg" alt="image of chosen path">
                     </div>
                     <div class="levels-row">
-                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.ID)">
+                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.lvlID)">
                             <img :src="level.bgImage" class="lvl-img">
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson" :class="levelClass">
-
+                <div v-if="showLesson">
+                    <div :class="levelClass"></div>
                 </div>
                 <div v-if="showTutorial">
                     <div class="header">
@@ -454,7 +454,7 @@
                 showLogin: false,
                 showHome: false,
                 showPaths: false,
-                showLevels: false, //toggle for levels page
+                showLevels: false, 
                 showLesson: false,
                 showAbout: false,
                 showTutorial: false,
@@ -486,8 +486,6 @@
                     uname: "",
                     email: ""
                 },
-                cart: [], // array to store items added to the cart (stores lesson ids)
-                confirmCart: [], //stores unique id of lessons in cart
                 sortBy: "selected", //sorting menu
                 orderBy: "asc", //order menu - ascending/descending
                 searchQuery: "", //stores search-bar's input
@@ -576,35 +574,35 @@
                     this.showSettings = false;
                 },
                 showLessonPage(levelID) {
-                    this.selectedID = levelID;
                     const levels = [...this.levels];
                     for (let i=0; i < levels.length; i++){
-                        if (levels[i]["id"] === this.selectedID){
+                        if (levels[i]["id"] === levelID){
                             this.selectedLevel = levels[i];
                             break;
                         }
                     }
+                    console.log("Selected Level: ", this.selectedLevel);
                     if (this.selectedPath == "ASL") {
-                        if (this.selectedID == "LVL01") {
+                        if (levelID == "LVL01") {
                             this.levelClass = "asl-lvl-1";
                         }
-                        else if (this.selectedID == "LVL02") {
+                        else if (levelID == "LVL02") {
                             this.levelClass = "asl-lvl-2";
                         }
-                        else if (this.selectedID == "LVL03") {
+                        else if (levelID == "LVL03") {
                             this.levelClass = "asl-lvl-3";
                         }
                         else {
                             this.levelClass = "asl-lvl-4";
                         }
                     } else {
-                        if (this.selectedID == "LVL01") {
+                        if (levelID == "LVL01") {
                             this.levelClass = "esl-lvl-1";
                         }
-                        else if (this.selectedID == "LVL02") {
+                        else if (levelID == "LVL02") {
                             this.levelClass = "esl-lvl-2";
                         }
-                        else if (this.selectedID == "LVL03") {
+                        else if (levelID == "LVL03") {
                             this.levelClass = "esl-lvl-3";
                         }
                         else {
