@@ -489,3 +489,47 @@
     </script>
 </body>
 </html>
+
+                // sortedLessons() {
+                //     let lessonsSorted = this.lessons.slice(0);
+
+                //     if (this.sortBy === "selected") {
+                //         return lessonsSorted;
+                //     }
+                //     console.log("Lessons sorted: ", lessonsSorted);
+
+                //     lessonsSorted.sort((a,b) => {
+                //         let attr1 = "";
+                //         let attr2 = "";
+
+                //         if (this.sortBy === "name") {
+                //             attr1 = a.name.toLowerCase();
+                //             attr2 = b.name.toLowerCase();
+                //         }
+                //         else if (this.sortBy === "location") {
+                //             attr1 = a.location.toLowerCase();
+                //             attr2 = b.location.toLowerCase();
+                //         }
+                //         else if (this.sortBy === "price") {
+                //             attr1 = a.price;
+                //             attr2 = b.price;
+                //         }
+                //         else if (this.sortBy === "seats") {
+                //             attr1 = (a.availableSeats - this.cartCount(a.id));
+                //             attr2 = (b.availableSeats - this.cartCount(b.id));
+                //         }
+
+                //         let result = 0;
+                //         if (attr1 < attr2){
+                //             result = -1;
+                //         }
+                //         if (attr1 > attr2){
+                //             result = 1;
+                //         }
+
+                //         //apply ascending or descending order
+                //         return this.orderBy === "desc" ? -result : result;
+                //     });
+
+                //     return lessonsSorted;
+                // }

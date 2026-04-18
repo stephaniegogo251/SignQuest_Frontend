@@ -838,3 +838,118 @@ button:disabled, button:disabled:hover {
     background-color: #f2f2f2;
     cursor: pointer;
 }
+
+.lesson-pg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10%;
+}
+
+.container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 380px;
+    width: 600px;
+    height: 420px;
+    border: 2px solid black;
+    border-radius: 30px;
+    background-color: #fff5ea;
+    filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.5));
+    font-family: "Poppins", "sans-serif";
+    z-index: 2;
+    align-items: center;
+    gap: 0px;
+}
+
+.cont-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 0px;
+    gap: 200px;
+}
+
+.switch-cam {
+    display: flex;
+    flex-direction: row;
+    font-size: 20px;
+    line-height: 20px;
+    gap: 15px;
+    text-align: left;
+    font-weight: 400;
+}
+
+.switch-cam p:hover {
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.sign-name {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.container video, .container canvas {
+    width: 450px;
+    height: 450px;
+    margin-top: -20px;
+}
+
+.top-lesson {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    margin: 0;
+    margin: 20px 10px;
+    box-sizing: border-box;
+}
+
+.cont-n, .cont-p {
+    display: flex;
+    width: 80%;
+    height: 60px;
+    font-family: "Poppins", "san-serif";
+    font-size: 25px;
+    line-height: 40px;
+    font-weight: 400;
+    text-align: center;
+    border: 2px solid black;
+    border-radius: 30px;
+    padding: 15px 45px;
+    margin: 0;
+    top: 35px;
+}
+
+.cont-n {
+    background-color: #fbeab5;
+}
+
+.cont-p {
+    background-color: #fff5ea;
+}
+
+.finish-btn, .next-btn, .close-btn {
+    background-color: #f2f2f2;
+    border: 1px solid black;
+    border-radius: 15px;
+    height: 30px;
+    width: 60px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 400;
+    padding: 2px 15px;
+    margin-left: 10px;
+}
+
+.finish-btn:hover, .next-btn:hover, .close-btn:hover {
+    background-color: black;
+    color: #f2f2f2;
+    cursor: pointer;
+}

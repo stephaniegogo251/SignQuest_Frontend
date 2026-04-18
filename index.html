@@ -5,6 +5,10 @@
     <link href="./styles.css" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="icon" href="https://signquest-backend-6ehr.onrender.com/sq_logo.png">
     <title>SignQuest</title>
@@ -277,8 +281,78 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson">
-                    <div :class="levelClass"></div>
+                <div v-if="showLesson" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-6ehr.onrender.com/static/' + currentPage.img_path + ')' }"-->
+                    <!-- <div :class="levelClass" >
+                        <div class="text-box">
+                            <h2 v-if="currentPage.N">{{ currentPage.N }}</h2>
+                            <h2 v-else-if="currentPage.P">{{ currentPage.P }}</h2>
+                        </div>
+                        <div v-if="currentPage.S" :class="['sign-container', currentPage.demoClass]">
+                            <h3>Sign: {{ currentPage.S }}</h3>
+                            
+                            <div class="camera-section" @click.stop> <div v-if="!isCameraActive">
+                                <p @click="toggleCamera" class="cam-link">Click to Start Camera</p>
+                            </div>
+                                
+                            <div v-else>
+                                <div class="webcam-container">
+                                    <video ref="webcam" autoplay playsinline style="display: none;"></video>
+                                    <canvas ref="canvas" width="640" height="480"></canvas>
+                                    
+                                    <div v-if="prediction" class="prediction-info">
+                                        Sign: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(2) }}%)
+                                    </div>
+                                </div>
+                                <p v-if="isCorrect" class="success-msg">Correct! Click anywhere to continue.</p>
+                            </div>
+                        </div>
+                        <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
+                            FINISH
+                        </button>
+                    </div> -->
+                    <div class="top-lesson">
+                        <div>
+                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
+                                FINISH
+                            </button>
+                            <button v-else class="next-btn" @click="handlePageClick()">
+                                NEXT
+                            </button>
+                        </div>
+                        <div>
+                            <div class="cont-n" v-if="currentPage.N">
+                                {{ currentPage.N }}
+                            </div>
+                            <div class="cont-p" v-if="currentPage.P">
+                                {{ currentPage.P }}
+                            </div>
+                        </div>
+                        <div class="close-btn" @click="exitLevel()">
+                            CLOSE
+                        </div>
+                    </div>
+                    <div class="container" v-if="currentPage.S">
+                        <div class="cont-top">
+                            <div class="switch-cam">
+                                <p @click="switchBox()">DEMO</p>
+                                <p @click="switchBox()">CAM</p>
+                            </div>
+                            <div class="sign-name">
+                                <p>{{ currentPage.S || "sign n/a" }}</p>
+                            </div>
+                        </div>
+                        <video v-if="demo" ref="input_video" controls>
+                            <source src="./Berghouse_Leopard_Jog.mp4" type="video/mp4" />
+                        </video>
+                        <video v-if="cam" ref="webcam" autoplay playsinline style="display: none;"></video>
+                        <canvas v-if="cam"
+                        class="output_canvas"
+                        ref="canvas"
+                        width="450px"
+                        height="320px"
+                        ></canvas>
+                        <!-- <p style="color: azure;" v-if="currentPage.S">{{ this.prediction.sign }}</p> -->
+                    </div>
                 </div>
                 <div v-if="showTutorial">
                     <div class="header">
@@ -468,6 +542,8 @@
                 levelClass: "",
                 levels: [],
                 selectedID: "",
+                demo: true,
+                cam: false,
                 ASL: [],
                 ESL: [],
                 user: {
@@ -486,6 +562,12 @@
                     uname: "",
                     email: ""
                 },
+                currentStep: 1,
+                isCameraActive: false,
+                isCorrect: false,
+                sequence: [],
+                prediction: null,
+                isPredicting: false,
                 sortBy: "selected", //sorting menu
                 orderBy: "asc", //order menu - ascending/descending
                 searchQuery: "", //stores search-bar's input
@@ -521,6 +603,131 @@
                 }
             },
             methods: {
+                initiateMP() {
+                    const holistic = new Holistic({
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
+                    });
+
+                    holistic.setOptions({
+                        maxNumholistic: 2,
+                        modelComplexity: 1,
+                        minDetectionConfidence: 0.5,
+                        minTrackingConfidence: 0.5
+                    });
+
+                    holistic.onResults(this.onResults);
+
+                    const camera = new Camera(this.$refs.webcam, {
+                        onFrame: async () => {
+                            if (this.$refs.webcam) {
+                                await holistic.send({ image: this.$refs.webcam });
+                            }
+                        },
+                        width: 350,
+                        height: 350
+                    });
+                    camera.start();
+                },
+                onResults(results) {
+                    const canvasElement = this.$refs.canvas;
+                    if (!canvasElement) return;
+                    const canvasCtx = this.$refs.canvas.getContext('2d');
+                    canvasCtx.save();
+                    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+                    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+                    // If the sign matches the current page's signList and confidence is high, color landmarks & connectors appropriately
+                    const color = this.isCorrect ? "#00FF00" : "#FF0000";
+
+                    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: color, lineWidth: 0.5});
+                    drawLandmarks(canvasCtx, results.poseLandmarks, {color: color, lineWidth: 0.5});
+
+                    // Draw Left Hand
+                    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {color: color, lineWidth: 0.5});
+                    drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: color, lineWidth: 0.5});
+
+                    // Draw Right Hand
+                    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: color, lineWidth: 0.5});
+                    drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: color, lineWidth: 0.5});
+
+                    // extract and store keypoints in sequence
+                    const keypoints = this.extractKeypoints(results);
+                    this.sequence.push(keypoints);
+                    
+                    // Keep only the last 30 frames
+                    if (this.sequence.length > 30) {
+                        this.sequence.shift();
+                    }
+
+                    // if the 30 frames have been stored, check for sign
+                    if (this.sequence.length === 30 && !this.isPredicting && !this.isCorrect) {
+                        this.predictSign();
+                    }
+
+                    canvasCtx.restore();
+                },
+                extractKeypoints(results) {
+                    // Pose landmarks (33 landmarks * 4 values: x, y, z, visibility)
+                    const pose = results.poseLandmarks 
+                        ? results.poseLandmarks.flatMap(res => [res.x, res.y, res.z, res.visibility]) 
+                        : new Array(33 * 4).fill(0);
+
+                    // Left hand (21 landmarks * 3 values)
+                    const lh = results.leftHandLandmarks 
+                        ? results.leftHandLandmarks.flatMap(res => [res.x, res.y, res.z]) 
+                        : new Array(21 * 3).fill(0);
+
+                    // Right hand (21 landmarks * 3 values)
+                    const rh = results.rightHandLandmarks 
+                        ? results.rightHandLandmarks.flatMap(res => [res.x, res.y, res.z]) 
+                        : new Array(21 * 3).fill(0);
+
+                    return [...pose, ...lh, ...rh];
+                },
+                predictSign() {
+                    this.isPredicting = true;
+                    
+                    fetch("https://signquest-backend-6ehr.onrender.com/api/predict", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            path: this.selectedPath, // 'ASL' or 'ESL'
+                            keypoints: this.sequence
+                        })
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`Server error: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        this.prediction = data;
+                        console.log("model predicted:", data.sign, "with confidence:", data.confidence);
+                        
+                        if (this.currentPage.signList.includes(data.sign.toLowerCase()) && data.confidence > 0.8) {
+                            this.isCorrect = true;
+                        } else {
+                            this.isCorrect = false;
+                        }
+                        this.isPredicting = false;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.isPredicting = false;
+                    });
+                },
+                switchBox() {
+                   this.demo = !this.demo;
+                   this.cam = !this.cam; 
+
+                   if (this.cam) {
+                        this.$nextTick(() => {
+                            this.initiateMP();
+                        });
+                    }
+                },
                 showSignupPage() {
                     this.showSignUp = true;
                     this.showLogin = false;
@@ -574,41 +781,11 @@
                     this.showSettings = false;
                 },
                 showLessonPage(levelID) {
+                    this.selectedID = levelID;
                     const levels = [...this.levels];
-                    for (let i=0; i < levels.length; i++){
-                        if (levels[i]["id"] === levelID){
-                            this.selectedLevel = levels[i];
-                            break;
-                        }
-                    }
+                    this.selectedLevel = this.levels.find(level => level.lvlID === this.selectedID);
                     console.log("Selected Level: ", this.selectedLevel);
-                    if (this.selectedPath == "ASL") {
-                        if (levelID == "LVL01") {
-                            this.levelClass = "asl-lvl-1";
-                        }
-                        else if (levelID == "LVL02") {
-                            this.levelClass = "asl-lvl-2";
-                        }
-                        else if (levelID == "LVL03") {
-                            this.levelClass = "asl-lvl-3";
-                        }
-                        else {
-                            this.levelClass = "asl-lvl-4";
-                        }
-                    } else {
-                        if (levelID == "LVL01") {
-                            this.levelClass = "esl-lvl-1";
-                        }
-                        else if (levelID == "LVL02") {
-                            this.levelClass = "esl-lvl-2";
-                        }
-                        else if (levelID == "LVL03") {
-                            this.levelClass = "esl-lvl-3";
-                        }
-                        else {
-                            this.levelClass = "esl-lvl-4";
-                        }
-                    }
+                    
                     this.showSignUp = false;
                     this.showLogin = false;
                     this.showHome = false;
@@ -624,7 +801,7 @@
                 showLevelPage(pathChosen, pathImage) {
                     this.selectedPath = pathChosen;
                     this.pathImg = pathImage;
-                    if (this.selectedPath === 'ASL') {
+                    if (this.selectedPath === 'asl') {
                         fetch("https://signquest-backend-6ehr.onrender.com/collection/asl")
                             .then(res => res.json())
                             .then(data => {
@@ -754,6 +931,51 @@
                         console.log("fetch error: ", error);
                     });
                 },
+                handlePageClick() {
+                    //if the storyline has sign and the user has not performed it right, alert user
+                    if (this.currentPage.S && !this.isCorrect) {
+                        alert("Please perform the sign correctly to continue!");
+                        return;
+                    }
+
+                    //if user reaches last line of storyline, end level
+                    if (this.currentStep >= this.totalSteps) {
+                        this.finishLevel();
+                        return;
+                    }
+
+                    // if storyline has not ended, move to the next line and reset the sign and cam checking
+                    this.currentStep++;
+                    this.isCorrect = false;
+                    this.isCameraActive = false;
+                },
+                toggleCamera() {
+                    this.isCameraActive = true;
+                },
+                finishLevel() {
+                    this.showLesson = false;
+                    this.showBadge = true; //navigates to badge pg after user completes level
+
+                    fetch(`https://signquest-backend-6ehr.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json', //set data type as json
+                        },
+                        body: JSON.stringify({status:"P"}),
+                    })
+                    .then(response => response.json())
+                    .then(updatedStatus => {
+                        console.log(updatedStatus)
+                        this.isLevelComplete = true;
+                    })
+                    .catch((error) => {
+                        console.log("fetch error: ", error);
+                    });
+
+                    if (this.isLevelComplete) {
+                        //update next level's status to U
+                    }
+                },
                 //method to fetch lessons from server along with filtered lessons if search query is given by user
                 // getLessons() {
                 //     console.log('requesting data from server ...')
@@ -776,167 +998,6 @@
                 //     .catch(err => {
                 //         console.error('fetch error: ', err);
                 //     });
-                // },
-                // //method to add lesson to cart
-                // addToCart(lesson) {
-                //     this.cart.push(lesson.id);
-                //     if (!this.confirmCart.includes(lesson.id)){
-                //         this.confirmCart.push(lesson.id);
-                //     }
-                //     //update available seats for specific lesson
-                //     fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
-                //         method: 'PUT',
-                //         headers: {
-                //             'Content-Type': 'application/json', //set data type as json
-                //         },
-                //         body: JSON.stringify({availableSeats:lesson.availableSeats - this.cartCount(lesson.id)}),
-                //     })
-                //     .then(response => response.json())
-                //     .then(updatedLesson => {
-                //         console.log("updated: ", updatedLesson);
-                //     })
-                //     .catch((error) => {
-                //         console.log("fetch error: ", error);
-                //     });
-                // },
-                // //checks if seats are available to add to cart
-                // canAddToCart(lesson) {
-                //     return lesson.availableSeats > this.cartCount(lesson.id);
-                // },
-                // //toggles view between lessons and cart
-                // showShoppingCart() {
-                //     this.showLesson = this.showLesson ? false : true;
-                // },
-                // //checks if cart has lessons
-                // enableCart() {
-                //     return this.cartItemCount > 0;
-                // },
-                // //counts number of specific lesson id in the cart
-                // cartCount(id) {
-                //     let count = 0;
-                //     for (let i = 0; i < this.cart.length; i++){
-                //         if (this.cart[i] === id) {
-                //             count++;
-                //         }
-                //     }
-                //     return count;
-                // },
-                // //removes either a seat or the entire lesson from cart
-                // removeFromCart(lesson) {
-                //     const lessonCount = this.cartCount(lesson.id);
-
-                //     if (lessonCount > 1) {
-                //         const index = this.cart.indexOf(lesson.id);
-                //         if (index !== -1) {
-                //             this.cart.splice(index, 1);
-                //         }
-                //     } 
-                //     else if (lessonCount === 1) {
-                //         this.cart = this.cart.filter(id => id !== lesson.id);
-                //         this.confirmCart = this.confirmCart.filter(id => id !== lesson.id);
-                //     }
-
-                //     if (this.cart.length === 0){
-                //         this.showLesson = true;
-                //     }
-                //     //updates seats available for specific lesson
-                    // fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
-                    //     method: 'PUT',
-                    //     headers: {
-                    //         'Content-Type': 'application/json', //set data type as json
-                    //     },
-                    //     body: JSON.stringify({availableSeats:lesson.availableSeats - this.cartCount(lesson.id)}),
-                    // })
-                    // .then(response => response.json())
-                    // .then(updatedLesson => {
-                    //     console.log("updated: ", updatedLesson);
-                    // })
-                    // .catch((error) => {
-                    //     console.log("fetch error: ", error);
-                    // });
-                // },
-                // //submits booking form and creates a new order
-                // submitForm() {
-                //     const namePattern = /^[A-Za-z\s]+$/;
-                //     const phoneNumPattern = /^05\d{8}$/;
-                //     const emailIDPattern = /^[\w._]+@[\w]+\.(com)$/;
-
-                //     const valid = (
-                //         (this.booking.fullname !== "") && (namePattern.test(this.booking.fullname))) && 
-                //         (phoneNumPattern.test(this.booking.phone)) && 
-                //         (emailIDPattern.test(this.booking.email));
-
-                //     if (valid) {
-                //         const cart_info = {};
-                        
-                //         for (let i = 0; i < this.confirmCart.length; i++) {
-                //             const cart_item = this.lessons.find(lesson => lesson.id === this.confirmCart[i]);
-                //             cart_info[cart_item.name] = this.cartCount(cart_item.id);
-                //         }
-
-                //         const newOrder = {
-                //             name: this.booking.fullname,
-                //             phone: this.booking.phone,
-                //             email: this.booking.email,
-                //             cart_info: cart_info
-                //         };
-
-                //         console.log("newOrder:", newOrder);
-                //         //posts new order to server
-                //         fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/orders', {
-                //             method: 'POST',
-                //             headers: { 'Content-Type': 'application/json' },
-                //             body: JSON.stringify(newOrder)
-                //         })
-                //         .then(res => {
-                //             return res.json()
-                //         })
-                //         .then(responseJSON => {
-                //             console.log("added new order:", responseJSON);
-
-                //             alert("Seats booked successfully!");
-
-                //             // clear form and cart
-                //             this.booking.fullname = "";
-                //             this.booking.phone = "";
-                //             this.booking.email = "";
-
-                //             this.cart = [];
-                //             this.confirmCart = [];
-
-                //             //reset all lessons to have 5 available seats
-                //             const updatedLessons = this.lessons.map(lesson => {
-                //                 return fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/'+lesson._id, {
-                //                     method: 'PUT',
-                //                     headers: {
-                //                         'Content-Type': 'application/json', //set data type as json
-                //                     },
-                //                     body: JSON.stringify({availableSeats:5}),
-                //                 });
-                //             });
-                //             //goes to next part only after all lessons are updated
-                //             return Promise.all(updatedLessons);
-
-                //         })
-                //         .then(() => {
-                //             //fetches lessons again to update frontend
-                //             return fetch('https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons');
-                //         })
-                //         .then(response => {
-                //             return response.json();
-                //         })
-                //         .then(updatedLessons => {
-                //             //updates lessons array and goes back to lesson page
-                //             this.lessons = updatedLessons.map(lesson => ({
-                //                 ...lesson,
-                //                 image: 'https://stephanie-cst3144-after-school-club.onrender.com/'+lesson.image
-                //             }));
-                //             this.showLesson = true;
-                //         })
-                //         .catch(error => {
-                //             console.error("fetch error:", error);
-                //         });
-                //     }
                 // },
                 submitSignupForm() {
                     if (!this.canSubmitSignupForm()) {
@@ -1046,6 +1107,14 @@
                 }
             },
             computed: {
+                currentPage() {
+                    if (!this.selectedLevel) return;
+                    return this.selectedLevel.storyline[`pg${this.currentStep}`];
+                },
+                totalSteps() {
+                    if (!this.selectedLevel) return 0;
+                    return Object.keys(this.selectedLevel.storyline).length;
+                },
                 leaderboard() {
                     return [...this.allUsers].sort((a,b) => a.totalXP - b.totalXP).map((user, index) => ({
                         ...user,
@@ -1055,7 +1124,7 @@
                 pageBackground() {
                     if (this.showLesson && this.selectedLevel && this.selectedLevel.bgImage) {
                         return {
-                            backgroundImage: `url(${this.selectedLevel.bgImage})`,
+                            backgroundImage: `url(https://signquest-backend-6ehr.onrender.com/static/${this.currentPage.img_path})`,
                             backgroundSize: 'cover',
                             backgroundAttachment: 'fixed',
                             backgroundPosition: 'center',
@@ -1064,7 +1133,7 @@
                             width: '100vw',
                             margin: '0',
                             padding: '0',
-                            zIndex: '-1'
+                            zIndex: '-2'
                         };
                     } else if (this.showSignUp || this.showLogin) {
                         return {
@@ -1095,57 +1164,7 @@
                             zIndex: '-1'
                         };
                     }
-                },
-                // cartItemCount() {
-                //     return this.cart.length || "";
-                // },
-                // selectedLessons() {
-                //     return this.lessons.filter(lesson => this.confirmCart.includes(lesson.id));
-                // },
-                // //filters and sorts lessons according to user input
-                // sortedLessons() {
-                //     let lessonsSorted = this.lessons.slice(0);
-
-                //     if (this.sortBy === "selected") {
-                //         return lessonsSorted;
-                //     }
-                //     console.log("Lessons sorted: ", lessonsSorted);
-
-                //     lessonsSorted.sort((a,b) => {
-                //         let attr1 = "";
-                //         let attr2 = "";
-
-                //         if (this.sortBy === "name") {
-                //             attr1 = a.name.toLowerCase();
-                //             attr2 = b.name.toLowerCase();
-                //         }
-                //         else if (this.sortBy === "location") {
-                //             attr1 = a.location.toLowerCase();
-                //             attr2 = b.location.toLowerCase();
-                //         }
-                //         else if (this.sortBy === "price") {
-                //             attr1 = a.price;
-                //             attr2 = b.price;
-                //         }
-                //         else if (this.sortBy === "seats") {
-                //             attr1 = (a.availableSeats - this.cartCount(a.id));
-                //             attr2 = (b.availableSeats - this.cartCount(b.id));
-                //         }
-
-                //         let result = 0;
-                //         if (attr1 < attr2){
-                //             result = -1;
-                //         }
-                //         if (attr1 > attr2){
-                //             result = 1;
-                //         }
-
-                //         //apply ascending or descending order
-                //         return this.orderBy === "desc" ? -result : result;
-                //     });
-
-                //     return lessonsSorted;
-                // }
+                }
             }
         });
     </script>
