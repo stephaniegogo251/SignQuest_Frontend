@@ -338,7 +338,7 @@
                                 <p @click="switchBox()">CAM</p>
                             </div>
                             <div class="sign-name">
-                                <p>{{ currentPage.S || "sign n/a" }}</p>
+                                <p>{{ currentPage.S.toUpperCase() }}</p>
                             </div>
                         </div>
                         <video v-if="demo" ref="input_video" controls>
@@ -653,7 +653,10 @@
 
                     // extract and store keypoints in sequence
                     const keypoints = this.extractKeypoints(results);
-                    this.sequence.push(keypoints);
+                    
+                    if (keypoints && keypoints.length > 0) {
+                        this.sequence.push(keypoints);
+                    }
                     
                     // Keep only the last 30 frames
                     if (this.sequence.length > 30) {
@@ -683,7 +686,9 @@
                         ? results.rightHandLandmarks.flatMap(res => [res.x, res.y, res.z]) 
                         : new Array(21 * 3).fill(0);
 
-                    return [...pose, ...lh, ...rh];
+                    const allLandmarks = [...pose, ...lh, ...rh];
+                    console.log("landmarks detected: ", allLandmarks);
+                    return allLandmarks;
                 },
                 predictSign() {
                     //debug code

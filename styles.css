@@ -891,12 +891,15 @@ button:disabled, button:disabled:hover {
     font-size: 20px;
     font-weight: 400;
     line-height: 20px;
+    text-align: right;
 }
 
 .container video, .container canvas {
     width: 450px;
     height: 550px;
-    margin-top: -20px;
+    margin-top: -70px;
+    border-radius: 15px;
+    overflow: hidden;
 }
 
 .top-lesson {
@@ -914,14 +917,15 @@ button:disabled, button:disabled:hover {
 .cont-n, .cont-p {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    width: 800px;
+    align-items: center;
+    min-width: 800px;
     height: 60px;
     border: 2px solid black;
     border-radius: 30px;
     padding: 5px 30px;
     margin: 0;
     top: 35px;
+    box-sizing: border-box;
 }
 
 .cont-n p, .cont-p p {
@@ -930,7 +934,6 @@ button:disabled, button:disabled:hover {
     line-height: 40px;
     font-weight: 400;
     text-align: center;
-    padding: 0px 15px;
 }
 
 .cont-n {
