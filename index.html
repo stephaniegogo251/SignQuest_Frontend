@@ -226,7 +226,7 @@
                         <h1>Pick your World:</h1>
                         <p>Note: you can learn both languages</p>
                         <div class="paths">
-                            <a class="path" v-for="path in this.paths" @click="showLevelPage(path.name, path.pathImg)">
+                            <a class="path" v-for="path in paths" @click="showLevelPage(path.name, path.pathImg)">
                                 <img :src="path.pathImg">
                                 <h4 v-html="path.desc"></h4>
                             </a>
@@ -848,7 +848,6 @@
                             .catch(err => {
                                 console.error('fetch error: ', err);
                             });
-                        this.levels = [...this.ESL];
                     }
                     this.showSignUp = false;
                     this.showLogin = false;
