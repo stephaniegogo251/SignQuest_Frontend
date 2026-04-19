@@ -281,35 +281,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-yhj4.onrender.com/static/' + currentPage.img_path + ')' }"-->
-                    <!-- <div :class="levelClass" >
-                        <div class="text-box">
-                            <h2 v-if="currentPage.N">{{ currentPage.N }}</h2>
-                            <h2 v-else-if="currentPage.P">{{ currentPage.P }}</h2>
-                        </div>
-                        <div v-if="currentPage.S" :class="['sign-container', currentPage.demoClass]">
-                            <h3>Sign: {{ currentPage.S }}</h3>
-                            
-                            <div class="camera-section" @click.stop> <div v-if="!isCameraActive">
-                                <p @click="toggleCamera" class="cam-link">Click to Start Camera</p>
-                            </div>
-                                
-                            <div v-else>
-                                <div class="webcam-container">
-                                    <video ref="webcam" autoplay playsinline style="display: none;"></video>
-                                    <canvas ref="canvas" width="640" height="480"></canvas>
-                                    
-                                    <div v-if="prediction" class="prediction-info">
-                                        Sign: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(2) }}%)
-                                    </div>
-                                </div>
-                                <p v-if="isCorrect" class="success-msg">Correct! Click anywhere to continue.</p>
-                            </div>
-                        </div>
-                        <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
-                            FINISH
-                        </button>
-                    </div> -->
+                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg">
                     <div class="top-lesson">
                         <div>
                             <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
@@ -337,19 +309,19 @@
                                 <p @click="switchBox()" class="switch-demo" :class="{ activeSwitch: demo }">DEMO</p>
                                 <p @click="switchBox()" class="switch-cam" :class="{ activeSwitch: cam }">CAM</p>
                             </div>
-                            <div class="sign-name">
-                                <p>{{ currentPage.S.toUpperCase() }}</p>
+                            <div class="sign-name" v-if="!currentPage.S_eng">
+                                <p>{{ currentPage.S }}</p>
+                            </div>
+                            <div class="sign-name" v-if="currentPage.S_eng">
+                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.S }}</p>
+                                <p v-else @click="toggleTranslate()">{{ currentPage.S_eng }}</p>
                             </div>
                         </div>
-                        <iframe 
-                        width="470" 
-                        height="470" 
-                        src="https://www.youtube.com/embed/6RHEkPCwuGQ" 
-                        title="{{ currentPage.S.toUpperCase }}" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen>
-                        </iframe>
+                        <div class="demo-wrapper" v-if="demo">
+                            <iframe v-if="demo" width="470" height="470" 
+                            :src="`https://www.youtube.com/embed/6RHEkPCwuGQ?autoplay=1&mute=1&loop=1&playlist=6RHEkPCwuGQ&controls=0&modestbranding=1&rel=0`" 
+                            :title="currentPage.S.toUpperCase()" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ></iframe>
+                        </div>
                         <video v-if="cam" ref="webcam" autoplay playsinline style="display: none;"></video>
                         <canvas v-if="cam"
                         class="output_canvas"
@@ -544,6 +516,7 @@
                 showLeaderboard: false,
                 showSettings: false,
                 showLogout: false,
+                showEng: false,
                 selectedPath: "",
                 paths: "",
                 selectedLevel: "",
@@ -611,6 +584,9 @@
                 }
             },
             methods: {
+                toggleTranslate() {
+                    this.showEng = !this.showEng;
+                },
                 initiateMP() {
                     const holistic = new Holistic({
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
@@ -1143,7 +1119,7 @@
                     return Object.keys(this.selectedLevel.storyline).length;
                 },
                 leaderboard() {
-                    return [...this.allUsers].sort((a,b) => a.totalXP - b.totalXP).map((user, index) => ({
+                    return [...this.allUsers].sort((a,b) => b.totalXP - a.totalXP).map((user, index) => ({
                         ...user,
                         "rank": index+1
                     }));
