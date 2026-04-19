@@ -913,12 +913,13 @@ button:disabled, button:disabled:hover {
 
 .cont-n, .cont-p {
     display: flex;
+    flex-direction: row;
+    justify-content: center;
     width: 800px;
     height: 60px;
-    text-align: center;
     border: 2px solid black;
     border-radius: 30px;
-    padding: 15px 45px;
+    padding: 5px 30px;
     margin: 0;
     top: 35px;
 }
@@ -928,6 +929,8 @@ button:disabled, button:disabled:hover {
     font-size: 25px;
     line-height: 40px;
     font-weight: 400;
+    text-align: center;
+    padding: 0px 15px;
 }
 
 .cont-n {
