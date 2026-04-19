@@ -897,7 +897,7 @@ button:disabled, button:disabled:hover {
 .container video, .container canvas {
     width: 450px;
     height: 450px;
-    margin: 0;
+    margin-top: 10px;
     border-radius: 15px;
 }
 
@@ -908,7 +908,6 @@ button:disabled, button:disabled:hover {
     align-items: center;
     width: 100%;
     gap: 10px;
-    margin: 0;
     margin: 20px 10px;
     box-sizing: border-box;
 }
@@ -954,10 +953,7 @@ button:disabled, button:disabled:hover {
     font-weight: 400;
     padding: 2px 15px;
     margin-left: 10px;
-}
-
-.next-btn {
-    padding: 2px 25px;
+    box-sizing: border-box;
 }
 
 .finish-btn:hover, .next-btn:hover, .close-btn:hover {
