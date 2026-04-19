@@ -1115,6 +1115,11 @@
 
                     // Concatenate all into one flat array of 258 values
                     return [...pose, ...lh, ...rh];
+                },
+                exitLevel() {
+                    this.selectedID = "";
+                    this.selectedLevel = "";
+                    this.showLevelPage();
                 }
             },
             computed: {
