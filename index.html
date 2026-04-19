@@ -686,6 +686,10 @@
                     return [...pose, ...lh, ...rh];
                 },
                 predictSign() {
+                    //debug code
+                    console.log("Attempting prediction. Sequence length:", this.sequence.length);
+                    console.log("Payload sample:", this.sequence[0]);
+
                     this.isPredicting = true;
                     
                     fetch("https://signquest-backend-6ehr.onrender.com/api/predict", {
