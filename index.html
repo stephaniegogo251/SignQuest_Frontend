@@ -281,7 +281,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-6ehr.onrender.com/static/' + currentPage.img_path + ')' }"-->
+                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-6ehr.onrender.com/static/' + currentPage.img_path + ')' }"-->
                     <!-- <div :class="levelClass" >
                         <div class="text-box">
                             <h2 v-if="currentPage.N">{{ currentPage.N }}</h2>
