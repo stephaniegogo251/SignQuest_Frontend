@@ -292,14 +292,14 @@
                             </button>
                         </div>
                         <div>
-                            <div class="cont-n" v-if="!currentPage.N_eng">
+                            <div class="cont-n" v-if="!currentPage.N_eng && currenPage.N">
                                 <p>{{ currentPage.N }}</p>
                             </div>
                             <div class="cont-n" v-if="currentPage.N_eng">
                                 <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.N }}</p>
                                 <p v-else @click="toggleTranslate()">{{ currentPage.N_eng }}</p>
                             </div>
-                            <div class="cont-p" v-if="!currentPage.P_eng">
+                            <div class="cont-p" v-if="!currentPage.P_eng && currenPage.P">
                                 <p>{{ currentPage.P }}</p>
                             </div>
                             <div class="cont-p" v-if="currentPage.P_eng">
