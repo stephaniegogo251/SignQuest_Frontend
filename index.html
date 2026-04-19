@@ -695,6 +695,8 @@
                     console.log("Attempting prediction. Sequence length:", this.sequence.length);
                     console.log("Payload sample:", this.sequence[0]);
 
+                    const cleanSequence = JSON.parse(JSON.stringify(this.sequence));
+
                     this.isPredicting = true;
                     
                     fetch("https://signquest-backend-6ehr.onrender.com/api/predict", {
@@ -702,7 +704,7 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             path: this.selectedPath, // 'ASL' or 'ESL'
-                            keypoints: this.sequence
+                            keypoints: cleanSequence
                         })
                     })
                     .then(res => {
