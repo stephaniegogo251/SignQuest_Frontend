@@ -276,7 +276,7 @@
                         <img :src="pathImg" alt="image of chosen path">
                     </div>
                     <div class="levels-row">
-                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.lvlID)">
+                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.lvlID)" :class="{ locked: level.status=='L' }">
                             <img :src="level.bgImage" class="lvl-img">
                         </div>
                     </div>
@@ -351,7 +351,7 @@
                         width="450px"
                         height="320px"
                         ></canvas>
-                        <p style="color: azure;" v-if="currentPage.S && prediction.sign">{{ prediction.sign }}</p>
+                        <!-- <p style="color: azure;" v-if="currentPage.S && prediction.sign">{{ prediction.sign }}</p> -->
                     </div>
                 </div>
                 <div v-if="showTutorial">

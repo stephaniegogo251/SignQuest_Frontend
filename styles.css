@@ -492,6 +492,18 @@ body {
     width: 100vw;
 }
 
+.locked {
+   width: 400px;
+   height: 300px;
+   border-radius: 30px; 
+   background-color: rgb(0, 0, 0, 0.5);
+}
+
+.locked img {
+    opacity: 0.9;
+    filter: brightness(0.3);
+}
+
 .ld-sect {
     display: flex;
     flex-direction: column;
