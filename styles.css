@@ -896,7 +896,7 @@ button:disabled, button:disabled:hover {
 
 .container video, .container canvas {
     width: 450px;
-    height: 550px;
+    height: 500px;
     margin: 0;
     border-radius: 15px;
 }
