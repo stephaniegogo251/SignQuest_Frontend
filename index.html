@@ -341,9 +341,15 @@
                                 <p>{{ currentPage.S.toUpperCase() }}</p>
                             </div>
                         </div>
-                        <video v-if="demo" ref="input_video" controls>
-                            <source src="./Berghouse_Leopard_Jog.mp4" type="video/mp4" />
-                        </video>
+                        <iframe 
+                        width="470" 
+                        height="470" 
+                        src="https://www.youtube.com/embed/6RHEkPCwuGQ" 
+                        title="{{ currentPage.S.toUpperCase }}" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                        </iframe>
                         <video v-if="cam" ref="webcam" autoplay playsinline style="display: none;"></video>
                         <canvas v-if="cam"
                         class="output_canvas"
@@ -398,20 +404,20 @@
                     <div class="tut-pg">
                         <h1>Tutorial Videos</h1>
                         <div class="top-menu">
-                            <input class="search-bar" type="text" placeholder="Search for tutorial by name/path"/> <!-- v-model.trim="searchQuery" -->
+                            <input class="search-bar" type="text" placeholder="Search for tutorial by name" v-model.trim="searchQuery"/>
                             <div class="sort-menu">
                                 <label for="sortBy">Sort By:</label>
-                                <select id="sortBy"> <!-- v-model="sortBy" -->
+                                <select id="sortBy" v-model="sortBy">
                                     <option value="selected" selected>Select</option>
-                                    <option value="level">Name</option>
-                                    <option value="length">Path</option>
+                                    <option value="ASL">ASL</option>
+                                    <option value="ESL">ESL</option>
                                 </select>
                             </div>
                             <div class="order-menu">
                                 <label for="orderBy">Order By:</label>
-                                <select id="orderBy"><!-- v-model="orderBy" -->
-                                    <option value="selected" selected>Select</option>
-                                    <option value="asc">A-Z</option>
+                                <select id="orderBy" v-model="orderBy">
+                                    <option value="selected">Select</option>
+                                    <option value="asc" selected>A-Z</option>
                                     <option value="desc">Z-A</option>
                                 </select>
                             </div>
@@ -600,7 +606,7 @@
             //watches for change in search bar and filters lesson data accordingly
             watch: {
                 searchQuery: {
-                    handler: 'getLessons',
+                    handler: 'getTutorials',
                     immediate: false
                 }
             },
@@ -993,28 +999,28 @@
                     }
                 },
                 //method to fetch lessons from server along with filtered lessons if search query is given by user
-                // getLessons() {
-                //     console.log('requesting data from server ...')
+                getTutorials() {
+                    console.log('requesting data from server ...')
 
-                //     const searchQ = this.searchQuery.trim();
-                //     let fetchURL = "https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons"
-                //     if (searchQ !== ""){
-                //         fetchURL = 'https://stephanie-cst3144-after-school-club.onrender.com/collection/lessons/search?q='+searchQ;
-                //     }
+                    const searchQ = this.searchQuery.trim();
+                    let fetchURL = "https://signquest-backend-yhj4.onrender.com/collection/signs"
+                    if (searchQ !== ""){
+                        fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs/search?q='+searchQ;
+                    }
 
-                //fetch(fetchURL)
-                //     .then(res => res.json())
-                //     .then(data => {
-                //         this.lessons = data.map(lesson => ({
-                //             ...lesson,
-                //             image: 'https://stephanie-cst3144-after-school-club.onrender.com/'+lesson.image
-                //         }));
-                //         console.log('lessons loaded:', this.lessons);
-                //     })
-                //     .catch(err => {
-                //         console.error('fetch error: ', err);
-                //     });
-                // },
+                fetch(fetchURL)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.signs = data.map(sign => ({
+                            ...sign,
+                            image: 'https://signquest-backend-yhj4.onrender.com/'+sign.image
+                        }));
+                        console.log('signs loaded:', this.signs);
+                    })
+                    .catch(err => {
+                        console.error('fetch error: ', err);
+                    });
+                },
                 submitSignupForm() {
                     if (!this.canSubmitSignupForm()) {
                         alert("Please enter a valid username (letters only) and a proper email address.");

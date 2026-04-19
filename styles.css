@@ -914,7 +914,7 @@ button:disabled, button:disabled:hover {
     text-align: right;
 }
 
-.container video, .container canvas {
+.container video, .container canvas, .container iframe {
     width: 470px;
     height: 470px;
     border-radius: 15px;
