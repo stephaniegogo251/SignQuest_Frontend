@@ -348,8 +348,8 @@
                         <canvas v-if="cam"
                         class="output_canvas"
                         ref="canvas"
-                        width="450px"
-                        height="320px"
+                        width="470px"
+                        height="500px"
                         ></canvas>
                         <div v-if="prediction" style="color: lime; font-weight: bold;">
                             Last Prediction: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(0) }}%)
@@ -625,8 +625,8 @@
                                 await holistic.send({ image: this.$refs.webcam });
                             }
                         },
-                        width: 450,
-                        height: 320
+                        width: 470,
+                        height: 500
                     });
                     camera.start();
                 },

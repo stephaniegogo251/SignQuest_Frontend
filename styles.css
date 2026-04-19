@@ -862,7 +862,7 @@ button:disabled, button:disabled:hover {
     flex-direction: column;
     margin-top: 100px;
     width: 600px;
-    height: 520px;
+    height: 550px;
     border: 2px solid black;
     border-radius: 30px;
     background-color: #fff5ea;
@@ -891,8 +891,8 @@ button:disabled, button:disabled:hover {
 }
 
 .switch-demo, .switch-cam {
-    font-size: 20px;
-    line-height: 20px;
+    font-size: 30px;
+    line-height: 30px;
     padding: 2px 5px;
 }
 
@@ -917,9 +917,9 @@ button:disabled, button:disabled:hover {
 }
 
 .container video, .container canvas {
-    width: 450px;
-    height: 450px;
-    margin-top: 10px;
+    width: 470px;
+    height: 500px;
+    margin-top: 20px;
     border-radius: 15px;
 }
 
