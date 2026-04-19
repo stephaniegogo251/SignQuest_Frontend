@@ -276,8 +276,8 @@
                         <img :src="pathImg" alt="image of chosen path">
                     </div>
                     <div class="levels-row">
-                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.lvlID)" :class="{ locked: level.status=='L' }">
-                            <img :src="level.bgImage" class="lvl-img">
+                        <div v-for="level in levels" :key="level.lvlID" class="level" @click="showLessonPage(level.lvlID)">
+                            <img :src="level.bgImage" class="lvl-img" :class="{ locked: level.status=='L' }">
                         </div>
                     </div>
                 </div>
