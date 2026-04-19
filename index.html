@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link rel="icon" href="https://signquest-backend-6ehr.onrender.com/sq_logo.png">
+    <link rel="icon" href="https://signquest-backend-yhj4.onrender.com/sq_logo.png">
     <title>SignQuest</title>
 </head>
 <body>
@@ -18,7 +18,7 @@
         <main>
             <div v-if="showSignUp" class="sign-up-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
-                    <img src="https://signquest-backend-6ehr.onrender.com/signquest_mp2.png" alt="signquest logo">
+                    <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
                     <h1 v-text="sitename"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
@@ -32,7 +32,7 @@
             </div>
             <div v-if="showLogin" class="login-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
-                    <img src="https://signquest-backend-6ehr.onrender.com/signquest_mp2.png" alt="signquest logo">
+                    <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
                     <h1 v-text="sitename"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
@@ -85,7 +85,7 @@
                 </div>
                 <div class="home-pg">
                     <div class="main-box">
-                        <img src="https://signquest-backend-6ehr.onrender.com/static/signquest_mp2.png">
+                        <img src="https://signquest-backend-yhj4.onrender.com/static/signquest_mp2.png">
                         <div class="main-desc">
                             <h2>Gamified Sign</h2>
                             <h2 class="line2">Language Learning</h2>
@@ -281,7 +281,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-6ehr.onrender.com/static/' + currentPage.img_path + ')' }"-->
+                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg"> <!--:style="{ backgroundImage: 'url(https://signquest-backend-yhj4.onrender.com/static/' + currentPage.img_path + ')' }"-->
                     <!-- <div :class="levelClass" >
                         <div class="text-box">
                             <h2 v-if="currentPage.N">{{ currentPage.N }}</h2>
@@ -577,12 +577,12 @@
             //this function is called as soon as the page loads
             created() {
                 // this.getLessons(); //fetch lesson data
-                fetch("https://signquest-backend-6ehr.onrender.com/collection/users")
+                fetch("https://signquest-backend-yhj4.onrender.com/collection/users")
                     .then(res => res.json())
                     .then(data => {
                         this.allUsers = data.map(users => ({
                             ...users,
-                            image: 'https://signquest-backend-6ehr.onrender.com/static/'+users.image
+                            image: 'https://signquest-backend-yhj4.onrender.com/static/'+users.image
                         }));
                         this.loggedInUser = this.allUsers.find(user => user.loggedIn == true);
                         if (this.loggedInUser) {
@@ -702,7 +702,7 @@
 
                     this.sequence = [];
                     
-                    fetch("https://signquest-backend-6ehr.onrender.com/api/predict", {
+                    fetch("https://signquest-backend-yhj4.onrender.com/api/predict", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -823,12 +823,12 @@
                     this.selectedPath = pathChosen;
                     this.pathImg = pathImage;
                     if (this.selectedPath === 'asl') {
-                        fetch("https://signquest-backend-6ehr.onrender.com/collection/asl")
+                        fetch("https://signquest-backend-yhj4.onrender.com/collection/asl")
                             .then(res => res.json())
                             .then(data => {
                                 this.levels = data.map(asl => ({
                                     ...asl,
-                                    bgImage: 'https://signquest-backend-6ehr.onrender.com/static/'+asl.bgImage
+                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/'+asl.bgImage
                                 }));
                                 console.log('levels loaded:', this.levels);
                             })
@@ -836,12 +836,12 @@
                                 console.error('fetch error: ', err);
                             });
                     } else {
-                        fetch("https://signquest-backend-6ehr.onrender.com/collection/esl")
+                        fetch("https://signquest-backend-yhj4.onrender.com/collection/esl")
                             .then(res => res.json())
                             .then(data => {
                                 this.levels = data.map(esl => ({
                                     ...esl,
-                                    bgImage: 'https://signquest-backend-6ehr.onrender.com/static/'+esl.bgImage
+                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/'+esl.bgImage
                                 }));
                                 console.log('levels loaded:', this.levels);
                             })
@@ -862,12 +862,12 @@
                     this.showSettings = false;
                 },
                 showPathPage() {
-                    fetch("https://signquest-backend-6ehr.onrender.com/collection/path")
+                    fetch("https://signquest-backend-yhj4.onrender.com/collection/path")
                         .then(res => res.json())
                         .then(data => {
                             this.paths = data.map(path => ({
                                 ...path,
-                                pathImg: 'https://signquest-backend-6ehr.onrender.com/static/'+path.pathImg
+                                pathImg: 'https://signquest-backend-yhj4.onrender.com/static/'+path.pathImg
                             }));
                             console.log('paths loaded:', this.paths);
                         })
@@ -933,7 +933,7 @@
                     this.showSettings = false;
                 },
                 logoutUser() {
-                    fetch('https://signquest-backend-6ehr.onrender.com/collection/users/'+this.loggedInUser._id, {
+                    fetch('https://signquest-backend-yhj4.onrender.com/collection/users/'+this.loggedInUser._id, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json', //set data type as json
@@ -976,7 +976,7 @@
                     this.showLesson = false;
                     this.showBadge = true; //navigates to badge pg after user completes level
 
-                    fetch(`https://signquest-backend-6ehr.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
+                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json', //set data type as json
@@ -1031,7 +1031,7 @@
                         const newUser = {...this.user};
                         newUser["userID"] = "user" + (this.allUsers.length+1);
 
-                        fetch('https://signquest-backend-6ehr.onrender.com/collection/users', {
+                        fetch('https://signquest-backend-yhj4.onrender.com/collection/users', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(newUser)
@@ -1070,7 +1070,7 @@
 
                     const userExists = this.allUsers.find(user => user.username === this.login_user.uname && user.email === this.login_user.email);
                     if (userExists) {
-                        fetch('https://signquest-backend-6ehr.onrender.com/collection/users/'+userExists._id, {
+                        fetch('https://signquest-backend-yhj4.onrender.com/collection/users/'+userExists._id, {
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json', //set data type as json
@@ -1149,7 +1149,7 @@
                 pageBackground() {
                     if (this.showLesson && this.selectedLevel && this.selectedLevel.bgImage) {
                         return {
-                            backgroundImage: `url(https://signquest-backend-6ehr.onrender.com/static/${this.currentPage.img_path})`,
+                            backgroundImage: `url(https://signquest-backend-yhj4.onrender.com/static/${this.currentPage.img_path})`,
                             backgroundSize: 'cover',
                             backgroundAttachment: 'fixed',
                             backgroundPosition: 'center',
