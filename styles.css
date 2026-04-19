@@ -982,6 +982,10 @@ button:disabled, button:disabled:hover {
     text-align: center;
 }
 
+.cont-n p:hover, .cont-p p:hover, .sign-name:hover {
+    cursor: pointer;
+}
+
 .cont-n {
     background-color: #fbeab5;
 }
