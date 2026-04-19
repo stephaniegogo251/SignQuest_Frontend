@@ -848,12 +848,12 @@ button:disabled, button:disabled:hover {
 }
 
 .container {
-    position: absolute;
+    /* position: absolute; */
     display: flex;
     flex-direction: column;
-    top: 380px;
+    top: 200px;
     width: 600px;
-    height: 420px;
+    height: 520px;
     border: 2px solid black;
     border-radius: 30px;
     background-color: #fff5ea;
@@ -895,7 +895,7 @@ button:disabled, button:disabled:hover {
 
 .container video, .container canvas {
     width: 450px;
-    height: 450px;
+    height: 550px;
     margin-top: -20px;
 }
 
@@ -913,18 +913,21 @@ button:disabled, button:disabled:hover {
 
 .cont-n, .cont-p {
     display: flex;
-    width: 80%;
+    width: 800px;
     height: 60px;
-    font-family: "Poppins", "san-serif";
-    font-size: 25px;
-    line-height: 40px;
-    font-weight: 400;
     text-align: center;
     border: 2px solid black;
     border-radius: 30px;
     padding: 15px 45px;
     margin: 0;
     top: 35px;
+}
+
+.cont-n p, .cont-p p {
+    font-family: "Poppins", "san-serif";
+    font-size: 25px;
+    line-height: 40px;
+    font-weight: 400;
 }
 
 .cont-n {
@@ -946,6 +949,10 @@ button:disabled, button:disabled:hover {
     font-weight: 400;
     padding: 2px 15px;
     margin-left: 10px;
+}
+
+.next-btn {
+    padding: 2px 25px;
 }
 
 .finish-btn:hover, .next-btn:hover, .close-btn:hover {
