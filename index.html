@@ -292,11 +292,19 @@
                             </button>
                         </div>
                         <div>
-                            <div class="cont-n" v-if="currentPage.N">
+                            <div class="cont-n" v-if="!currentPage.N_eng">
                                 <p>{{ currentPage.N }}</p>
                             </div>
-                            <div class="cont-p" v-if="currentPage.P">
+                            <div class="cont-n" v-if="currentPage.N_eng">
+                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.N }}</p>
+                                <p v-else @click="toggleTranslate()">{{ currentPage.N_eng }}</p>
+                            </div>
+                            <div class="cont-p" v-if="!currentPage.P_eng">
                                 <p>{{ currentPage.P }}</p>
+                            </div>
+                            <div class="cont-p" v-if="currentPage.P_eng">
+                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.P }}</p>
+                                <p v-else @click="toggleTranslate()">{{ currentPage.P_eng }}</p>
                             </div>
                         </div>
                         <div class="close-btn" @click="exitLevel()">
