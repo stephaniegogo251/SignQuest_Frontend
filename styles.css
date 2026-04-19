@@ -851,7 +851,7 @@ button:disabled, button:disabled:hover {
     /* position: absolute; */
     display: flex;
     flex-direction: column;
-    top: 200px;
+    margin-top: 100px;
     width: 600px;
     height: 520px;
     border: 2px solid black;
@@ -868,7 +868,7 @@ button:disabled, button:disabled:hover {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 0px;
+    margin-bottom: -50px;
     gap: 200px;
 }
 
@@ -897,9 +897,8 @@ button:disabled, button:disabled:hover {
 .container video, .container canvas {
     width: 450px;
     height: 550px;
-    margin-top: -70px;
+    margin: 0;
     border-radius: 15px;
-    overflow: hidden;
 }
 
 .top-lesson {
