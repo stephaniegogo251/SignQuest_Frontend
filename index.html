@@ -693,10 +693,6 @@
                     return allLandmarks;
                 },
                 predictSign() {
-                    //debug code
-                    console.log("Attempting prediction. Sequence length:", this.sequence.length);
-                    console.log("Payload sample:", this.sequence[0]);
-
                     this.isPredicting = true;
                     const cleanSequence = JSON.parse(JSON.stringify(this.sequence));
 
