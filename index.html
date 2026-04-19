@@ -801,13 +801,19 @@
                     this.showLogin = false;
                     this.showHome = false;
                     this.showAbout= false;
-                    this.showLesson = true;
                     this.showLevels = false;
                     this.showPaths = false;
                     this.showTutorial = false;
                     this.showProfile = false;
                     this.showLeaderboard = false;
                     this.showSettings = false;
+
+                    if (this.selectedLevel.status === 'U') {
+                        this.showLesson = true;
+                    } else {
+                        this.showLesson = false;
+                        this.showLevels = true;
+                    }
                 },
                 showLevelPage(pathChosen, pathImage) {
                     this.selectedPath = pathChosen;
