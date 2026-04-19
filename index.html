@@ -333,9 +333,9 @@
                     </div>
                     <div class="container" v-if="currentPage.S">
                         <div class="cont-top">
-                            <div class="switch-cam">
-                                <p @click="switchBox()">DEMO</p>
-                                <p @click="switchBox()">CAM</p>
+                            <div class="switch-box">
+                                <p @click="switchBox()" class="switch-demo" :class="{ activeSwitch: demo }">DEMO</p>
+                                <p @click="switchBox()" class="switch-cam" :class="{ activeSwitch: cam }">CAM</p>
                             </div>
                             <div class="sign-name">
                                 <p>{{ currentPage.S.toUpperCase() }}</p>
@@ -351,7 +351,7 @@
                         width="450px"
                         height="320px"
                         ></canvas>
-                        <!-- <p style="color: azure;" v-if="currentPage.S">{{ this.prediction.sign }}</p> -->
+                        <p style="color: azure;" v-if="currentPage.S && prediction.sign">{{ prediction.sign }}</p>
                     </div>
                 </div>
                 <div v-if="showTutorial">

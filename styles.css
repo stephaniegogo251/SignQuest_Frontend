@@ -872,19 +872,32 @@ button:disabled, button:disabled:hover {
     gap: 200px;
 }
 
-.switch-cam {
+.switch-box {
     display: flex;
     flex-direction: row;
-    font-size: 20px;
-    line-height: 20px;
     gap: 15px;
     text-align: left;
     font-weight: 400;
+    border-radius: 15px;
 }
 
-.switch-cam p:hover {
+.switch-demo, .switch-cam {
+    font-size: 20px;
+    line-height: 20px;
+    padding: 2px 5px;
+}
+
+.switch-demo:hover, .switch-cam:hover {
+    background-color: black;
+    color: white;
     font-weight: 500;
     cursor: pointer;
+}
+
+.activeSwitch {
+    background-color: black;
+    color: white;
+    font-weight: 500;
 }
 
 .sign-name {
