@@ -351,7 +351,9 @@
                         width="450px"
                         height="320px"
                         ></canvas>
-                        <!-- <p style="color: azure;" v-if="currentPage.S && prediction.sign">{{ prediction.sign }}</p> -->
+                        <div v-if="prediction" style="color: lime; font-weight: bold;">
+                            Last Prediction: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(0) }}%)
+                        </div>
                     </div>
                 </div>
                 <div v-if="showTutorial">
@@ -623,8 +625,8 @@
                                 await holistic.send({ image: this.$refs.webcam });
                             }
                         },
-                        width: 350,
-                        height: 350
+                        width: 450,
+                        height: 320
                     });
                     camera.start();
                 },
@@ -695,9 +697,10 @@
                     console.log("Attempting prediction. Sequence length:", this.sequence.length);
                     console.log("Payload sample:", this.sequence[0]);
 
+                    this.isPredicting = true;
                     const cleanSequence = JSON.parse(JSON.stringify(this.sequence));
 
-                    this.isPredicting = true;
+                    this.sequence = [];
                     
                     fetch("https://signquest-backend-6ehr.onrender.com/api/predict", {
                         method: "POST",
@@ -714,6 +717,7 @@
                         return res.json();
                     })
                     .then(data => {
+                        alert("Server responded: " + data.sign);
                         this.prediction = data;
                         console.log("model predicted:", data.sign, "with confidence:", data.confidence);
                         
