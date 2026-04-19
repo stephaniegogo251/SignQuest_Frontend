@@ -645,14 +645,12 @@
                         this.sequence.push(keypoints);
                     }
                     
-                    // Keep only the last 30 frames
-                    if (this.sequence.length > 30) {
-                        this.sequence.shift();
-                    }
-
-                    // if the 30 frames have been stored, check for sign
-                    if (this.sequence.length === 30 && !this.isPredicting && !this.isCorrect) {
-                        this.predictSign();
+                    if (this.sequence.length === 30) {
+                        if (!this.isPredicting && !this.isCorrect) {
+                            this.predictSign();
+                        } else {
+                            this.sequence.shift();
+                        }
                     }
 
                     canvasCtx.restore();
