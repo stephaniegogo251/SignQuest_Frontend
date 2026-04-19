@@ -883,7 +883,6 @@ button:disabled, button:disabled:hover {
 .switch-box {
     display: flex;
     flex-direction: row;
-    gap: 15px;
     text-align: left;
     font-weight: 400;
     border-radius: 15px;
