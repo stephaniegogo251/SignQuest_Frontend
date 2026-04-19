@@ -676,7 +676,7 @@
                 },
                 predictSign() {
                     this.isPredicting = true;
-                    const cleanSequence = JSON.parse(JSON.stringify(this.sequence));
+                    const seqCopy = [...this.sequence];
 
                     this.sequence = [];
                     
@@ -685,7 +685,7 @@
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             path: this.selectedPath, // 'ASL' or 'ESL'
-                            keypoints: cleanSequence
+                            keypoints: seqCopy
                         })
                     })
                     .then(res => {
@@ -800,7 +800,7 @@
                 showLevelPage(pathChosen, pathImage) {
                     this.selectedPath = pathChosen;
                     this.pathImg = pathImage;
-                    if (this.selectedPath === 'asl') {
+                    if (this.selectedPath === 'ASL') {
                         fetch("https://signquest-backend-yhj4.onrender.com/collection/asl")
                             .then(res => res.json())
                             .then(data => {
