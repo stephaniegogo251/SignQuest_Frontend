@@ -940,22 +940,19 @@
                     });
                 },
                 handlePageClick() {
-                    //if the storyline has sign and the user has not performed it right, alert user
                     if (this.currentPage.S && !this.isCorrect) {
-                        alert("Please perform the sign correctly to continue!");
+                        alert(`To move on, please show the sign for: ${this.currentPage.S}`);
                         return;
                     }
 
-                    //if user reaches last line of storyline, end level
-                    if (this.currentStep >= this.totalSteps) {
+                    if (this.currentStep < this.totalSteps) {
+                        this.currentStep++;
+                        this.isCorrect = false;      
+                        this.isCameraActive = false;
+                        this.prediction = { sign: 'Waiting...', confidence: 0 };
+                    } else {
                         this.finishLevel();
-                        return;
                     }
-
-                    // if storyline has not ended, move to the next line and reset the sign and cam checking
-                    this.currentStep++;
-                    this.isCorrect = false;
-                    this.isCameraActive = false;
                 },
                 toggleCamera() {
                     this.isCameraActive = true;
