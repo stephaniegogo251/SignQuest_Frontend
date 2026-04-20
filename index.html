@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="icon" href="https://signquest-backend-yhj4.onrender.com/sq_logo.png">
     <title>SignQuest</title>
@@ -563,6 +564,13 @@
                 sortBy: "selected", //sorting menu
                 orderBy: "asc", //order menu - ascending/descending
                 searchQuery: "", //stores search-bar's input
+                aslModel: null,
+                eslModel: null,
+                aslLabels: ['1', '3', 'bye', 'can', 'coffee', 'doctor', 'fainted', 'he', 'hello', 'help', 'hot', 'hotel', 'i', 'idle', 'lost', 'needs', 
+                            'nice', 'no', 'please', 'small', 'thank you', 'this', 'ticket', 'to meet', 'too', 'travelling', 'wait', 'walk', 'want', 'with', 
+                            'yes', 'you', 'your welcome'],
+                eslLabels: ['1','50','card','emirates id','excellent','fine','finish','how are you','i','idle', 'know','laqeemat','majboos','near','no',
+                            'plate','room','salaam alaikum','small','sorry','thank you','travel','want','yes']
             },
             //this function is called as soon as the page loads
             created() {
@@ -586,6 +594,7 @@
                         console.error('fetch error: ', err);
                     });
                 console.log(this.loggedInUser || "no user logged in!");
+                this.loadModel();
             },
             //watches for change in search bar and filters lesson data accordingly
             watch: {
@@ -597,6 +606,21 @@
             methods: {
                 toggleTranslate() {
                     this.showEng = !this.showEng;
+                },
+                loadModel() {
+                    // load asl model from public folder
+                    tf.loadLayersModel('/models/asl/model.json')
+                        .then(m => {
+                            this.aslModel = m;
+                            console.log("asl model loaded");
+                        });
+
+                    // load esl model from public folder
+                    tf.loadLayersModel('/models/esl/model.json')
+                        .then(m => {
+                            this.eslModel = m;
+                            console.log("esl model loaded");
+                        });
                 },
                 initiateMP() {
                     const holistic = new Holistic({
@@ -688,41 +712,52 @@
                 },
                 predictSign() {
                     if (this.isPredicting) return;
-
                     this.isPredicting = true;
-                    const seqCopy = [...this.sequence];
-                    this.sequence = [];
-                    
-                    fetch("https://signquest-backend-yhj4.onrender.com/api/predict", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            path: this.selectedPath, // 'ASL' or 'ESL'
-                            keypoints: seqCopy
-                        })
-                    })
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error(`Server error: ${res.status}`);
-                        }
-                        return res.json();
-                    })
-                    .then(data => {
-                        alert("Server responded: " + data.sign);
-                        this.prediction.sign = data.sign;
-                        this.prediction.confidence = data.confidence;
-                        console.log("model predicted:", data.sign, "with confidence:", data.confidence);
-                        
-                        if (this.currentPage.signList.includes(data.sign.toLowerCase()) && data.confidence > 0.8) {
+
+                    // choose model and labels based on selected path
+                    let currentModel = null;
+                    let currentLabels = [];
+                    if (this.selectedPath === "ASL") {
+                        currentModel = this.aslModel;
+                        currentLabels = this.aslLabels;
+                    }
+                    else {
+                        currentModel = this.eslModel;
+                        currentLabels = this.eslLabels;
+                    }
+
+                    if (!currentModel) {
+                        console.log("model not ready yet");
+                        this.isPredicting = false;
+                        return;
+                    }
+
+                    // use tf.tidy to keep memory clean
+                    tf.tidy(() => {
+                        // create tensor from sequence
+                        const input = tf.tensor3d([this.sequence]);
+                        const prediction = currentModel.predict(input);
+                        const scores = prediction.dataSync();
+
+                        // find highest score
+                        const maxScore = Math.max(...scores);
+                        const index = scores.indexOf(maxScore);
+                        const predictedSign = currentLabels[index];
+
+                        // update ui
+                        this.prediction.sign = predictedSign;
+                        this.prediction.confidence = maxScore;
+
+                        console.log("predicted:", predictedSign, "conf:", maxScore);
+
+                        // check if sign matches the required list
+                        const currentSignList = this.currentPage.signList.map(s => s.toLowerCase());
+                        if (currentSignList.includes(predictedSign.toLowerCase()) && maxScore > 0.8) {
                             this.isCorrect = true;
-                        } else {
-                            this.isCorrect = false;
                         }
+
                         this.isPredicting = false;
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        this.isPredicting = false;
+                        this.sequence = []; // clear sequence for next attempt
                     });
                 },
                 switchBox() {
