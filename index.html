@@ -610,25 +610,27 @@
                     this.showEng = !this.showEng;
                 },
                 loadModel(path) {
-                    console.log("starting model download...");
-
-                    // load asl model from public folder
+                    console.log("Starting " + path + " load...");
+                    
+                    // Use ./ to tell the browser "look in the current folder"
+                    let modelUrl = "";
                     if (path === 'ASL') {
-                        tf.loadLayersModel('public/models/asl/model.json')
-                        .then(m => {
-                            this.aslModel = m;
-                            console.log("asl model loaded");
-                        })
-                        .catch(err => console.error("asl model download failed! ", err));
+                        modelUrl = './models/asl/model.json';
                     } else {
-                        // load esl model from public folder
-                        tf.loadLayersModel('public/models/esl/model.json')
-                        .then(m => {
-                            this.eslModel = m;
-                            console.log("esl model loaded");
-                        })
-                        .catch(err => console.error("esl model download failed! ", err));
+                        modelUrl = './models/esl/model.json';
                     }
+
+                    tf.loadLayersModel(modelUrl)
+                        .then(model => {
+                            if (path === 'ASL') { this.aslModel = model; }
+                            else { this.eslModel = model; }
+                            console.log(path + " Loaded successfully!");
+                        })
+                        .catch(error => {
+                            console.error("Path error! Trying without dot...", error);
+                            // Fallback for different server structures
+                            tf.loadLayersModel(modelUrl.substring(2)).then(m => console.log("Loaded on second try!"));
+                        });
                 },
                 initiateMP() {
                     const holistic = new Holistic({
@@ -692,7 +694,10 @@
                         this.sequence.shift(); 
                     }
 
-                    if (this.sequence.length === 30 && !this.isPredicting && !this.isCorrect) {
+                    if (this.sequence.length === 30) {
+                    // if (!this.isPredicting && !this.isCorrect) {
+                    //     this.predictSign();
+                    // }
                         this.predictSign();
                     }
 
@@ -715,57 +720,64 @@
                         : new Array(21 * 3).fill(0);
 
                     const allLandmarks = [...pose, ...lh, ...rh];
-                    console.log("landmarks detected: ", allLandmarks);
+                    console.log("landmarks detected: ", lh);
                     return allLandmarks;
                 },
                 predictSign() {
-                    if (this.isPredicting) return;
+                    // Check if we have enough data (30 frames)
+                    if (this.sequence.length !== 30) {
+                        console.log("Waiting for more frames... currently: " + this.sequence.length);
+                        return; 
+                    }
+
                     this.isPredicting = true;
 
-                    // choose model and labels based on selected path
-                    let currentModel = null;
-                    let currentLabels = [];
-                    if (this.selectedPath === "ASL") {
-                        currentModel = this.aslModel;
-                        currentLabels = this.aslLabels;
-                    }
-                    else {
-                        currentModel = this.eslModel;
-                        currentLabels = this.eslLabels;
-                    }
-
-                    if (!currentModel) {
-                        console.log("model not ready yet");
-                        this.isPredicting = false;
-                        return;
-                    }
-
-                    // use tf.tidy to keep memory clean
                     tf.tidy(() => {
-                        // create tensor from sequence
-                        const input = tf.tensor3d([this.sequence], [1,30,258]);
-                        const prediction = currentModel.predict(input);
-                        const scores = prediction.dataSync();
+                        // Ensure model exists
+                        let currentModel = null;
+                        let labels = [];
 
-                        // find highest score
-                        const maxScore = Math.max(...scores);
-                        const index = scores.indexOf(maxScore);
-                        const predictedSign = currentLabels[index];
-
-                        // update ui
-                        this.prediction.sign = predictedSign;
-                        this.prediction.confidence = maxScore;
-
-                        console.log("predicted:", predictedSign, "conf:", maxScore);
-
-                        // check if sign matches the required list
-                        const currentSignList = this.currentPage.signList.map(s => s.toLowerCase());
-                        if (currentSignList.includes(predictedSign.toLowerCase()) && maxScore > 0.8) {
-                            this.isCorrect = true;
+                        if (this.selectedPath === 'ASL') {
+                            currentModel = this.aslModel;
+                            labels = this.aslLabels;
+                        } else {
+                            currentModel = this.eslModel;
+                            labels = this.eslLabels;
                         }
 
+                        if (currentModel) {
+                            const input = tf.tensor3d([this.sequence], [1, 30, 258]);
+                            const prediction = currentModel.predict(input);
+                            const scores = prediction.dataSync();
+                            
+                            const maxScore = Math.max(...scores);
+                            const predictedIndex = scores.indexOf(maxScore);
+                            const predictedSign = labels[predictedIndex];
+
+                            console.log("Result:", predictedSign, "Score:", maxScore);
+
+                            // Match Logic for prediction
+                            if (predictedSign) {
+                                if (predictedSign !== 'idle') {
+                                    if (maxScore > 0.80) {
+                                        if (this.currentPage) {
+                                            if (this.currentPage.S) {
+                                                const target = this.currentPage.S.toLowerCase().trim();
+                                                const result = predictedSign.toLowerCase().trim();
+                                                
+                                                if (result === target) {
+                                                    this.isCorrect = true;
+                                                    console.log("!!! MATCH FOUND !!!");
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            console.warn("Model is not ready yet.");
+                        }
                         this.isPredicting = false;
-                        this.sequence = []; // clear sequence for next attempt
                     });
                 },
                 switchBox() {
@@ -988,7 +1000,6 @@
                 },
                 handlePageClick() {
                     if (this.currentPage.S && !this.isCorrect) {
-                        alert(`To move on, please show the sign for: ${this.currentPage.S}`);
                         return;
                     }
 
