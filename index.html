@@ -684,9 +684,10 @@
                     return allLandmarks;
                 },
                 predictSign() {
+                    if (this.isPredicting) return;
+
                     this.isPredicting = true;
                     const seqCopy = [...this.sequence];
-
                     this.sequence = [];
                     
                     fetch("https://signquest-backend-yhj4.onrender.com/api/predict", {
