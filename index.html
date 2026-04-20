@@ -555,7 +555,10 @@
                 isCameraActive: false,
                 isCorrect: false,
                 sequence: [],
-                prediction: null,
+                prediction: {
+                    sign: "",
+                    confidence: 0
+                },
                 isPredicting: false,
                 sortBy: "selected", //sorting menu
                 orderBy: "asc", //order menu - ascending/descending
@@ -706,7 +709,8 @@
                     })
                     .then(data => {
                         alert("Server responded: " + data.sign);
-                        this.prediction = data;
+                        this.prediction.sign = data.sign;
+                        this.prediction.confidence = data.confidence;
                         console.log("model predicted:", data.sign, "with confidence:", data.confidence);
                         
                         if (this.currentPage.signList.includes(data.sign.toLowerCase()) && data.confidence > 0.8) {
@@ -949,7 +953,8 @@
                         this.currentStep++;
                         this.isCorrect = false;      
                         this.isCameraActive = false;
-                        this.prediction = { sign: 'Waiting...', confidence: 0 };
+                        this.prediction.sign = "Waiting...";
+                        this.prediction.confidence = 0;
                     } else {
                         this.finishLevel();
                     }
