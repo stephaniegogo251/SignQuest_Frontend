@@ -1131,25 +1131,6 @@
 
                     return (((this.login_user.uname !== "") && (namePattern.test(this.login_user.uname))) && (emailIDPattern.test(this.login_user.email)));
                 },
-                extractKeypoints(results) {
-                    // 1. Pose Landmarks (33 landmarks * 4 values: x, y, z, visibility) = 132 values
-                    const pose = results.poseLandmarks 
-                        ? results.poseLandmarks.flatMap(res => [res.x, res.y, res.z, res.visibility])
-                        : new Array(33 * 4).fill(0);
-
-                    // 2. Left Hand Landmarks (21 landmarks * 3 values: x, y, z) = 63 values
-                    const lh = results.leftHandLandmarks
-                        ? results.leftHandLandmarks.flatMap(res => [res.x, res.y, res.z])
-                        : new Array(21 * 3).fill(0);
-
-                    // 3. Right Hand Landmarks (21 landmarks * 3 values: x, y, z) = 63 values
-                    const rh = results.rightHandLandmarks
-                        ? results.rightHandLandmarks.flatMap(res => [res.x, res.y, res.z])
-                        : new Array(21 * 3).fill(0);
-
-                    // Concatenate all into one flat array of 258 values
-                    return [...pose, ...lh, ...rh];
-                },
                 exitLevel() {
                     this.selectedID = "";
                     this.selectedLevel = "";
