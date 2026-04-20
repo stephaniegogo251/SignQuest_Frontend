@@ -613,7 +613,7 @@
 
                     // load asl model from public folder
                     if (path === 'ASL') {
-                        tf.loadLayersModel('/models/asl/model.json')
+                        tf.loadLayersModel('public/models/asl/model.json')
                         .then(m => {
                             this.aslModel = m;
                             console.log("asl model loaded");
@@ -621,7 +621,7 @@
                         .catch(err => console.error("asl model download failed! ", err));
                     } else {
                         // load esl model from public folder
-                        tf.loadLayersModel('/models/esl/model.json')
+                        tf.loadLayersModel('public/models/esl/model.json')
                         .then(m => {
                             this.eslModel = m;
                             console.log("esl model loaded");
