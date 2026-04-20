@@ -339,7 +339,7 @@
                         height="470px"
                         ></canvas>
                         <div v-if="prediction" style="color: lime; font-weight: bold;">
-                            Last Prediction: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(0) }}%)
+                            Prediction: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(0) }}%)
                         </div>
                     </div>
                 </div>
@@ -594,7 +594,6 @@
                         console.error('fetch error: ', err);
                     });
                 console.log(this.loggedInUser || "no user logged in!");
-                this.loadModel();
             },
             //watches for change in search bar and filters lesson data accordingly
             watch: {
@@ -607,20 +606,26 @@
                 toggleTranslate() {
                     this.showEng = !this.showEng;
                 },
-                loadModel() {
+                loadModel(path) {
+                    console.log("starting model download...");
+
                     // load asl model from public folder
-                    tf.loadLayersModel('/models/asl/model.json')
+                    if (path === 'ASL') {
+                        tf.loadLayersModel('/models/asl/model.json')
                         .then(m => {
                             this.aslModel = m;
                             console.log("asl model loaded");
-                        });
-
-                    // load esl model from public folder
-                    tf.loadLayersModel('/models/esl/model.json')
+                        })
+                        .catch(err => console.error("asl model download failed! ", err));
+                    } else {
+                        // load esl model from public folder
+                        tf.loadLayersModel('/models/esl/model.json')
                         .then(m => {
                             this.eslModel = m;
                             console.log("esl model loaded");
-                        });
+                        })
+                        .catch(err => console.error("esl model download failed! ", err));
+                    }
                 },
                 initiateMP() {
                     const holistic = new Holistic({
@@ -680,12 +685,12 @@
                         this.sequence.push(keypoints);
                     }
                     
-                    if (this.sequence.length === 30) {
-                        if (!this.isPredicting && !this.isCorrect) {
-                            this.predictSign();
-                        } else {
-                            this.sequence.shift();
-                        }
+                    if (this.sequence.length > 30) {
+                        this.sequence.shift(); 
+                    }
+                    
+                    if (this.sequence.length === 30 && !this.isPredicting && !this.isCorrect) {
+                        this.predictSign();
                     }
 
                     canvasCtx.restore();
@@ -875,6 +880,12 @@
                             .catch(err => {
                                 console.error('fetch error: ', err);
                             });
+                    }
+
+                    if (this.selectedPath === "ASL") {
+                        this.loadModel("ASL");
+                    } else {
+                        this.loadModel("ESL");
                     }
                     this.showSignUp = false;
                     this.showLogin = false;
