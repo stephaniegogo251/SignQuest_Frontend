@@ -574,6 +574,8 @@
             },
             //this function is called as soon as the page loads
             created() {
+                this.loadModel("ASL");
+                this.loadModel("ESL");
                 // this.getLessons(); //fetch lesson data
                 fetch("https://signquest-backend-yhj4.onrender.com/collection/users")
                     .then(res => res.json())
@@ -688,7 +690,7 @@
                     if (this.sequence.length > 30) {
                         this.sequence.shift(); 
                     }
-                    
+
                     if (this.sequence.length === 30 && !this.isPredicting && !this.isCorrect) {
                         this.predictSign();
                     }
@@ -880,12 +882,6 @@
                             .catch(err => {
                                 console.error('fetch error: ', err);
                             });
-                    }
-
-                    if (this.selectedPath === "ASL") {
-                        this.loadModel("ASL");
-                    } else {
-                        this.loadModel("ESL");
                     }
                     this.showSignUp = false;
                     this.showLogin = false;
