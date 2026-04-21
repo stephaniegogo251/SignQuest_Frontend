@@ -412,8 +412,8 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="signs-row">
-                            <div v-for="sign in signs" :key="sign.signID" class="sign">
+                        <div class="levels-row">
+                            <div v-for="sign in signs" :key="sign.signID" class="level">
                                 <video 
                                     :key="sign.video"
                                     width="470" 
@@ -553,6 +553,7 @@
                 showEng: false,
                 selectedPath: "",
                 paths: "",
+                signs: "",
                 selectedLevel: "",
                 levelClass: "",
                 levels: [],
@@ -1046,6 +1047,18 @@
                     this.showSettings = false;
                 },
                 showTutorialPage() {
+                    fetch("https://signquest-backend-yhj4.onrender.com/collection/signs")
+                    .then(res => res.json())
+                    .then(data => {
+                        this.signs = data.map(sign => ({
+                            ...sign
+                        }));
+                        console.log('paths loaded:', this.paths);
+                    })
+                    .catch(err => {
+                        console.error('fetch error: ', err);
+                    });
+
                     this.showSignUp = false;
                     this.showLogin = false;
                     this.showHome = false;
