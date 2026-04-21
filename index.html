@@ -9,8 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="icon" href="https://signquest-backend-yhj4.onrender.com/sq_logo.png">
     <title>SignQuest</title>
@@ -228,7 +227,7 @@
                         <h1>Pick your World:</h1>
                         <p>Note: you can learn both languages</p>
                         <div class="paths">
-                            <a class="path" v-for="path in paths" @click="showLevelPage(path.name, path.pathImg)">
+                            <a class="path" v-for="path in paths" @click="selectPath(path.name, path.pathImg)">
                                 <img :src="path.pathImg">
                                 <h4 v-html="path.desc"></h4>
                             </a>
@@ -285,13 +284,8 @@
                 </div>
                 <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg">
                     <div class="top-lesson">
-                        <div>
-                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
-                                FINISH
-                            </button>
-                            <button v-else class="next-btn" @click="handlePageClick()">
-                                NEXT
-                            </button>
+                        <div class="close-btn" @click="exitLevel()">
+                            CLOSE
                         </div>
                         <div>
                             <div class="cont-n" v-if="!currentPage.N_eng && currentPage.N">
@@ -309,8 +303,13 @@
                                 <p v-else @click="toggleTranslate()">{{ currentPage.P_eng }}</p>
                             </div>
                         </div>
-                        <div class="close-btn" @click="exitLevel()">
-                            CLOSE
+                        <div>
+                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
+                                FINISH
+                            </button>
+                            <button v-else class="next-btn" @click="handlePageClick()">
+                                NEXT
+                            </button>
                         </div>
                     </div>
                     <div class="container" v-if="currentPage.S">
@@ -327,23 +326,32 @@
                                 <p v-else @click="toggleTranslate()">{{ currentPage.S_eng }}</p>
                             </div>
                         </div>
-                        <div class="demo-wrapper" v-if="demo">
-                            <iframe v-if="demo" width="470" height="470" 
-                            :src="`https://www.youtube.com/embed/6RHEkPCwuGQ?autoplay=1&mute=1&loop=1&playlist=6RHEkPCwuGQ&controls=0&modestbranding=1&rel=0`" 
-                            :title="currentPage.S.toUpperCase()" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ></iframe>
+                        <div class="demo-wrapper" v-if="demo" style="overflow: hidden;">
+                            <video 
+                            :key="currentPage.video"
+                            width="470" 
+                            height="475"
+                            autoplay
+                            loop
+                            muted
+                            playsinline
+                            style="transform: scaleX(-1);">
+                            <source :src="currentPage.video" type="video/mp4">
+                        </video>
                         </div>
                         <video v-if="cam" ref="webcam" autoplay playsinline style="display: none;"></video>
                         <canvas v-if="cam"
                         class="output_canvas"
                         ref="canvas"
                         width="470px"
-                        height="470px"
+                        height="475px"
                         ></canvas>
-                        <div v-if="prediction" style="color: lime; font-weight: bold;">
-                            Prediction: {{ prediction.sign }} ({{ (prediction.confidence * 100).toFixed(0) }}%)
+                        <div v-if="cam && prediction.sign" style="color: lime; font-weight: bold;">
+                            {{ prediction.sign }} — {{ prediction.confidence }}
                         </div>
                     </div>
                 </div>
+
                 <div v-if="showTutorial">
                     <div class="header">
                         <h1 v-text="sitename"></h1>
@@ -404,6 +412,22 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="signs-row">
+                            <div v-for="sign in signs" :key="sign.signID" class="sign">
+                                <video 
+                                    :key="sign.video"
+                                    width="470" 
+                                    height="470"
+                                    autoplay
+                                    loop
+                                    muted
+                                    playsinline
+                                    style="transform: scaleX(-1);">
+                                    <source :src="sign.video" type="video/mp4">
+                                </video>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
                 <div v-if="showProfile">
@@ -541,11 +565,12 @@
                     "username": "",
                     "email": "",
                     "loggedIn": false,
-                    "badges": [],
+                    "badges": 0,
                     "selectedPath": "",
-                    "completedLevels": "",
+                    "completedLevels": 0,
                     "totalXP": 0,
-                    "image": "def_prof.png"
+                    "image": "def_prof.png",
+                    "signScores": []
                 },
                 allUsers: [],
                 loggedInUser: {},
@@ -555,6 +580,7 @@
                 },
                 currentStep: 1,
                 isCameraActive: false,
+                camera: null,
                 isCorrect: false,
                 sequence: [],
                 prediction: {
@@ -565,6 +591,13 @@
                 sortBy: "selected", //sorting menu
                 orderBy: "asc", //order menu - ascending/descending
                 searchQuery: "", //stores search-bar's input
+                completedSigns: [],
+                signScores: [],
+                totalLevelScore: 0,
+                signCount: 0,
+                levelXP: {},
+                holisticInstance: null,
+                cameraInstance: null,
                 aslModel: null,
                 eslModel: null,
                 aslLabels: ['1', '3', 'bye', 'can', 'coffee', 'doctor', 'fainted', 'he', 'hello', 'help', 'hot', 'hotel', 'i', 'idle', 'lost', 'needs', 
@@ -603,6 +636,15 @@
                 searchQuery: {
                     handler: 'getTutorials',
                     immediate: false
+                },
+                sequence: {
+                    handler(newVal) {
+                        // Only trigger prediction if we have a full sequence and aren't already predicting
+                        if (newVal.length === 30 && !this.isPredicting) {
+                            this.predictSign();
+                        }
+                    },
+                    deep: true
                 }
             },
             methods: {
@@ -610,52 +652,54 @@
                     this.showEng = !this.showEng;
                 },
                 loadModel(path) {
-                    console.log("Starting " + path + " load...");
-                    
-                    // Use ./ to tell the browser "look in the current folder"
-                    let modelUrl = "";
-                    if (path === 'ASL') {
-                        modelUrl = './models/asl/model.json';
-                    } else {
-                        modelUrl = './models/esl/model.json';
-                    }
+                    tf.setBackend('cpu').then(() => {
+                        let modelUrl = path === 'ASL' ? './models/asl/model.json' : './models/esl/model.json';
 
-                    tf.loadLayersModel(modelUrl)
-                        .then(model => {
-                            if (path === 'ASL') { this.aslModel = model; }
-                            else { this.eslModel = model; }
-                            console.log(path + " Loaded successfully!");
-                        })
-                        .catch(error => {
-                            console.error("Path error! Trying without dot...", error);
-                            // Fallback for different server structures
-                            tf.loadLayersModel(modelUrl.substring(2)).then(m => console.log("Loaded on second try!"));
-                        });
+                        tf.loadLayersModel(modelUrl)
+                            .then(model => {
+                                if (path === 'ASL') { this.aslModel = model; }
+                                else { this.eslModel = model; }
+                                console.log(path + " Model Loaded!");
+
+                                console.log(path + " model summary:");
+                                model.summary();
+                                console.log(path + " input shape:", model.inputs[0].shape);
+                                console.log(path + " output shape:", model.outputs[0].shape);
+
+                                const testInput = tf.zeros([1, 30, 258]);
+                                const testOutput = model.predict(testInput);
+                                const testScores = Array.from(testOutput.dataSync());
+                                console.log(path + " zero-input test scores:", testScores);
+                                testInput.dispose();
+                                testOutput.dispose();
+                            })
+                            .catch(err => console.error("Load failed:", err));
+                    });
                 },
                 initiateMP() {
-                    const holistic = new Holistic({
+                    this.holisticInstance = new Holistic({
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`
                     });
 
-                    holistic.setOptions({
+                    this.holisticInstance.setOptions({
                         maxNumholistic: 2,
                         modelComplexity: 1,
                         minDetectionConfidence: 0.5,
                         minTrackingConfidence: 0.5
                     });
 
-                    holistic.onResults(this.onResults);
+                    this.holisticInstance.onResults(this.onResults);
 
-                    const camera = new Camera(this.$refs.webcam, {
+                    this.cameraInstance = new Camera(this.$refs.webcam, {
                         onFrame: async () => {
-                            if (this.$refs.webcam) {
-                                await holistic.send({ image: this.$refs.webcam });
+                            if (this.$refs.webcam && this.holisticInstance) {
+                                await this.holisticInstance.send({ image: this.$refs.webcam });
                             }
                         },
                         width: 470,
                         height: 470
                     });
-                    camera.start();
+                    this.cameraInstance.start();
                 },
                 onResults(results) {
                     const canvasElement = this.$refs.canvas;
@@ -704,91 +748,132 @@
                     canvasCtx.restore();
                 },
                 extractKeypoints(results) {
-                    // Pose landmarks (33 landmarks * 4 values: x, y, z, visibility)
-                    const pose = results.poseLandmarks 
-                        ? results.poseLandmarks.flatMap(res => [res.x, res.y, res.z, res.visibility]) 
+                    const pose = results.poseLandmarks
+                        ? results.poseLandmarks.flatMap(res => [
+                            isFinite(res.x) ? res.x : 0,
+                            isFinite(res.y) ? res.y : 0,
+                            isFinite(res.z) ? res.z : 0,
+                            isFinite(res.visibility) ? res.visibility : 0
+                        ])
                         : new Array(33 * 4).fill(0);
 
-                    // Left hand (21 landmarks * 3 values)
-                    const lh = results.leftHandLandmarks 
-                        ? results.leftHandLandmarks.flatMap(res => [res.x, res.y, res.z]) 
+                    const lh = results.leftHandLandmarks
+                        ? results.leftHandLandmarks.flatMap(res => [
+                            isFinite(res.x) ? res.x : 0,
+                            isFinite(res.y) ? res.y : 0,
+                            isFinite(res.z) ? res.z : 0
+                        ])
                         : new Array(21 * 3).fill(0);
 
-                    // Right hand (21 landmarks * 3 values)
-                    const rh = results.rightHandLandmarks 
-                        ? results.rightHandLandmarks.flatMap(res => [res.x, res.y, res.z]) 
+                    const rh = results.rightHandLandmarks
+                        ? results.rightHandLandmarks.flatMap(res => [
+                            isFinite(res.x) ? res.x : 0,
+                            isFinite(res.y) ? res.y : 0,
+                            isFinite(res.z) ? res.z : 0
+                        ])
                         : new Array(21 * 3).fill(0);
 
                     const allLandmarks = [...pose, ...lh, ...rh];
-                    console.log("landmarks detected: ", lh);
-                    return allLandmarks;
+                    const clean = allLandmarks.map(v => (isFinite(v) ? v : 0));
+
+                    console.log("Keypoint length:", clean.length, "| Sample:", clean.slice(0, 5));
+                    return clean;
                 },
                 predictSign() {
-                    // Check if we have enough data (30 frames)
-                    if (this.sequence.length !== 30) {
-                        console.log("Waiting for more frames... currently: " + this.sequence.length);
-                        return; 
-                    }
+                    if (this.sequence.length !== 30 || this.isPredicting) return;
 
                     this.isPredicting = true;
 
-                    tf.tidy(() => {
-                        // Ensure model exists
-                        let currentModel = null;
-                        let labels = [];
+                    try {
+                        const safeSequence = this.sequence.map(frame =>
+                            frame.map(v => (isFinite(v) ? v : 0))
+                        );
 
-                        if (this.selectedPath === 'ASL') {
-                            currentModel = this.aslModel;
-                            labels = this.aslLabels;
-                        } else {
-                            currentModel = this.eslModel;
-                            labels = this.eslLabels;
+                        let currentModel = this.selectedPath === 'ASL' ? this.aslModel : this.eslModel;
+                        let labels = this.selectedPath === 'ASL' ? this.aslLabels : this.eslLabels;
+
+                        if (!currentModel || !labels) {
+                            console.warn("Model not loaded yet for path:", this.selectedPath);
+                            this.isPredicting = false;
+                            return;
                         }
 
-                        if (currentModel) {
-                            const input = tf.tensor3d([this.sequence], [1, 30, 258]);
-                            const prediction = currentModel.predict(input);
-                            const scores = prediction.dataSync();
-                            
-                            const maxScore = Math.max(...scores);
-                            const predictedIndex = scores.indexOf(maxScore);
-                            const predictedSign = labels[predictedIndex];
+                        const flat = safeSequence.flat();
+                        console.log("Input shape check: frames=", safeSequence.length, "features=", safeSequence[0].length, "flat length=", flat.length);
 
-                            console.log("Result:", predictedSign, "Score:", maxScore);
+                        if (safeSequence[0].length !== 258) {
+                            console.error("Feature mismatch! Expected 258, got:", safeSequence[0].length);
+                            this.isPredicting = false;
+                            return;
+                        }
 
-                            // Match Logic for prediction
-                            if (predictedSign) {
-                                if (predictedSign !== 'idle') {
-                                    if (maxScore > 0.80) {
-                                        if (this.currentPage) {
-                                            if (this.currentPage.S) {
-                                                const target = this.currentPage.S.toLowerCase().trim();
-                                                const result = predictedSign.toLowerCase().trim();
-                                                
-                                                if (result === target) {
-                                                    this.isCorrect = true;
-                                                    console.log("!!! MATCH FOUND !!!");
-                                                }
-                                            }
-                                        }
+                        const inputTensor = tf.tensor3d([safeSequence], [1, 30, 258]);
+                        const outputTensor = currentModel.predict(inputTensor);
+                        const scores = Array.from(outputTensor.dataSync());
+
+                        inputTensor.dispose();
+                        outputTensor.dispose();
+
+                        console.log("Scores:", scores);
+
+                        // Check for NaN in output
+                        if (scores.some(s => !isFinite(s))) {
+                            console.error("Model returned NaN/Infinity scores — check model file or input data");
+                            this.isPredicting = false;
+                            return;
+                        }
+
+                        const maxScore = Math.max(...scores);
+                        const predictedIndex = scores.indexOf(maxScore);
+
+                        if (predictedIndex !== -1 && labels[predictedIndex] && labels[predictedIndex] != 'idle') {
+                            this.prediction = {
+                                sign: labels[predictedIndex],
+                                confidence: parseFloat((maxScore * 100).toFixed(1))
+                            };
+
+                            console.log("Predicted:", labels[predictedIndex], this.prediction.confidence + "%");
+
+                            const result = labels[predictedIndex].toLowerCase().trim();
+
+                            if (result !== 'idle' && maxScore > 0.7) {
+                                const isTarget = this.currentPage.signList.some(
+                                    s => s.toLowerCase().trim() === result
+                                );
+
+                                console.log("signList raw:", JSON.stringify(this.currentPage.signList));
+                                console.log("result raw:", JSON.stringify(result));
+
+                                if (isTarget && !this.completedSigns.includes(result)) {
+                                    const scorePercentage = +(maxScore * 100).toFixed(2);
+                                    this.signScores.push({ sign: result, score: scorePercentage });
+                                    this.totalLevelScore += scorePercentage;
+                                    this.signCount++;
+                                    this.completedSigns.push(result);
+
+                                    if (this.completedSigns.length === this.currentPage.signList.length) {
+                                        this.isCorrect = true;
                                     }
                                 }
                             }
-                        } else {
-                            console.warn("Model is not ready yet.");
                         }
+
+                    } catch (err) {
+                        console.error("Prediction error:", err);
+                    } finally {
                         this.isPredicting = false;
-                    });
+                    }
                 },
                 switchBox() {
-                   this.demo = !this.demo;
-                   this.cam = !this.cam; 
-
-                   if (this.cam) {
-                        this.$nextTick(() => {
-                            this.initiateMP();
-                        });
-                    }
+                       if (this.cam) {
+                            this.stopCamera();
+                        } else {
+                            this.demo = false;
+                            this.cam = true;
+                            this.$nextTick(() => {
+                                this.initiateMP();
+                            });
+                        }
                 },
                 showSignupPage() {
                     this.showSignUp = true;
@@ -908,7 +993,34 @@
                     this.showLeaderboard = false;
                     this.showSettings = false;
                 },
+                selectPath(pathName, pathImage) {
+                    // Save selected path to mongodb
+                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ selectedPath: pathName })
+                    });
+                    this.loggedInUser.selectedPath = pathName;
+                    this.showLevelPage(pathName, pathImage);
+                },
                 showPathPage() {
+                    if (this.loggedInUser.selectedPath) {
+                        if (!this.pathImg) {
+                            fetch("https://signquest-backend-yhj4.onrender.com/collection/path")
+                                .then(res => res.json())
+                                .then(data => {
+                                    const found = data.find(p => p.name === this.loggedInUser.selectedPath);
+                                    if (found) {
+                                        this.pathImg = 'https://signquest-backend-yhj4.onrender.com/static/' + found.pathImg;
+                                    }
+                                    this.showLevelPage(this.loggedInUser.selectedPath, this.pathImg);
+                                });
+                        } else {
+                            this.showLevelPage(this.loggedInUser.selectedPath, this.pathImg);
+                        }
+                        return;
+                    }
+
                     fetch("https://signquest-backend-yhj4.onrender.com/collection/path")
                         .then(res => res.json())
                         .then(data => {
@@ -1002,13 +1114,13 @@
                     if (this.currentPage.S && !this.isCorrect) {
                         return;
                     }
+                    this.stopCamera();
 
                     if (this.currentStep < this.totalSteps) {
+                        this.resetProgress();
                         this.currentStep++;
-                        this.isCorrect = false;      
                         this.isCameraActive = false;
-                        this.prediction.sign = "Waiting...";
-                        this.prediction.confidence = 0;
+                        this.prediction = { sign: "", confidence: 0 };
                     } else {
                         this.finishLevel();
                     }
@@ -1017,28 +1129,93 @@
                     this.isCameraActive = true;
                 },
                 finishLevel() {
-                    this.showLesson = false;
-                    this.showBadge = true; //navigates to badge pg after user completes level
+                    // calculate level score (average of all sign scores)
+                    const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
+                    const levelID = this.selectedLevel.lvlID;
 
+                    // update the levelXP object
+                    this.levelXP[levelID] = finalLevelScore;
+
+                    // mark current level as Passed (P) and unlock next level
+                    this.selectedLevel.status = "P";
+                    const currentIndex = this.levels.findIndex(l => l.lvlID === levelID);
+                    if (currentIndex !== -1 && currentIndex + 1 < this.levels.length) {
+                        this.levels[currentIndex + 1].status = "U";
+                    }
+
+                    // update level status in collection
                     fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json', //set data type as json
-                        },
-                        body: JSON.stringify({status:"P"}),
-                    })
-                    .then(response => response.json())
-                    .then(updatedStatus => {
-                        console.log(updatedStatus)
-                        this.isLevelComplete = true;
-                    })
-                    .catch((error) => {
-                        console.log("fetch error: ", error);
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: "P" }),
                     });
 
-                    if (this.isLevelComplete) {
-                        //update next level's status to U
+                    const levelNo = 0;
+                    if (this.selectedID === "LVL01") {
+                        levelNo = 1;
+                    } else if (this.selectedID === "LVL02") {
+                        levelNo = 2;
+                    } else if (this.selectedID === "LVL03") {
+                        levelNo = 3;
+                    } else {
+                        levelNo = 4;
                     }
+                    // update user profile
+                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            completedLevels: this.loggedInUser.completedLevels + 1,
+                            totalXP: this.levelXP,
+                            signScores: this.signScores
+                        }),
+                    })
+                    .then(() => {
+                        // update progress collection
+                        return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress`)
+                            .then(res => res.json())
+                            .then(allProgress => {
+                                const existing = allProgress.find(p => p.userID === this.loggedInUser.userID);
+                                const updatedSignScores = existing ? { ...existing.signScores } : {};
+
+                                Object.keys(this.signScores).forEach(({sign,score}) => {
+                                    if (!updatedSignScores[sign]) updatedSignScores[sign] = [];
+                                    updatedSignScores[sign].push(score);
+                                });
+
+                                const progressData = {
+                                    progressID: 'P' + this.loggedInUser.userID.replace('user', '').padStart(3, '0'),
+                                    userID: this.loggedInUser.userID,
+                                    signScores: updatedSignScores
+                                };
+
+                                if (existing) {
+                                    return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress/${existing._id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(progressData)
+                                    });
+                                } else {
+                                    return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(progressData)
+                                    });
+                                }
+                            });
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            this.loggedInUser.completedLevels += 1;
+                            this.stopCamera();
+                            this.resetProgress();
+                            this.currentStep = 1;
+                            this.showLesson = false;
+                            alert("Congratulations! You have won a badge!");
+                            this.showProfilePage();
+                        }
+                    })
+                    .catch(err => console.error("Update failed:", err));
                 },
                 //method to fetch lessons from server along with filtered lessons if search query is given by user
                 getTutorials() {
@@ -1088,11 +1265,12 @@
                                 "username": "",
                                 "email": "",
                                 "loggedIn": false,
-                                "badges": [],
+                                "badges": 0,
                                 "selectedPath": "",
-                                "completedLevels": "",
+                                "completedLevels": 0,
                                 "totalXP": 0,
-                                "image": "def_prof.png"
+                                "image": "def_prof.png",
+                                "signScores":[]
                             }
 
                             document.getElementById("signup-form").reset()
@@ -1151,9 +1329,33 @@
                     return (((this.login_user.uname !== "") && (namePattern.test(this.login_user.uname))) && (emailIDPattern.test(this.login_user.email)));
                 },
                 exitLevel() {
+                    this.stopCamera();
                     this.selectedID = "";
                     this.selectedLevel = "";
                     this.showLevelPage(this.selectedPath, this.pathImg);
+                },
+                stopCamera() {
+                    if (this.cameraInstance) {
+                        this.cameraInstance.stop();
+                        this.cameraInstance = null;
+                    }
+                    if (this.holisticInstance) {
+                        this.holisticInstance.close();
+                        this.holisticInstance = null;
+                    }
+                    this.cam = false;
+                    this.demo = true;
+                    this.sequence = [];
+                    this.isPredicting = false;
+                    this.prediction = { sign: "", confidence: 0 };
+                    console.log("Camera stopped");
+                },
+                resetProgress() {
+                    this.completedSigns = [];
+                    this.isCorrect = false;
+                    this.signScores = [];
+                    this.totalLevelScore = 0;
+                    this.signCount = 0;
                 }
             },
             computed: {
