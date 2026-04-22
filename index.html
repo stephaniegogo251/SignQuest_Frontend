@@ -20,7 +20,7 @@
             <div v-if="showSignUp" class="sign-up-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
                     <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
-                    <h1 v-text="sitename"></h1>
+                    <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
                 <form class="signup-form" id="signup-form">
@@ -34,7 +34,7 @@
             <div v-if="showLogin" class="login-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
                     <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
-                    <h1 v-text="sitename"></h1>
+                    <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
                 <form class="login-form" id="login-form">
@@ -47,7 +47,7 @@
             </div>
             <div v-if="showHome">
                 <div class="header">
-                    <h1 v-text="sitename"></h1>
+                    <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                     <div class="nav-menu">
                         <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                         <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -58,7 +58,7 @@
                         <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                         style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                         <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                             settings
                         </p>
                     </div>
@@ -119,7 +119,7 @@
             <div v-else>
                 <div v-if="showAbout">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                             <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                             <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -130,7 +130,7 @@
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
                             </p>
                         </div>
@@ -186,7 +186,7 @@
                 </div>
                 <div v-if="showPaths">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                         <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                         <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -197,7 +197,7 @@
                         <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                         style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                         <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                             settings
                         </p>
                         </div>
@@ -236,7 +236,7 @@
                 </div>
                 <div v-if="showLevels">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                             <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                             <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -247,7 +247,7 @@
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
                             </p>
                         </div>
@@ -292,15 +292,15 @@
                                 <p>{{ currentPage.N }}</p>
                             </div>
                             <div class="cont-n" v-if="currentPage.N_eng">
-                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.N }}</p>
-                                <p v-else @click="toggleTranslate()">{{ currentPage.N_eng }}</p>
+                                <p v-if="!showEng">{{ currentPage.N }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
+                                <p v-else>{{ currentPage.N_eng }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
                             </div>
                             <div class="cont-p" v-if="!currentPage.P_eng && currentPage.P">
                                 <p>{{ currentPage.P }}</p>
                             </div>
                             <div class="cont-p" v-if="currentPage.P_eng">
-                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.P }}</p>
-                                <p v-else @click="toggleTranslate()">{{ currentPage.P_eng }}</p>
+                                <p v-if="!showEng">{{ currentPage.P }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
+                                <p v-else>{{ currentPage.P_eng }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
                             </div>
                         </div>
                         <div>
@@ -322,8 +322,8 @@
                                 <p>{{ currentPage.S }}</p>
                             </div>
                             <div class="sign-name" v-if="currentPage.S_eng">
-                                <p v-if="!showEng" @click="toggleTranslate()">{{ currentPage.S }}</p>
-                                <p v-else @click="toggleTranslate()">{{ currentPage.S_eng }}</p>
+                                <p v-if="!showEng">{{ currentPage.S }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
+                                <p v-else>{{ currentPage.S_eng }} <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span></p>
                             </div>
                         </div>
                         <div class="demo-wrapper" v-if="demo" style="overflow: hidden;">
@@ -339,7 +339,7 @@
                             <source :src="currentPage.video" type="video/mp4">
                         </video>
                         </div>
-                        <video v-if="cam" ref="webcam" autoplay playsinline style="display: none;"></video>
+                        <video v-if="cam" ref="webcam" autoplay playsinline style="display: none; transform: scaleX(-1)"></video>
                         <canvas v-if="cam"
                         class="output_canvas"
                         ref="canvas"
@@ -354,7 +354,7 @@
 
                 <div v-if="showTutorial">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                             <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                             <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -365,7 +365,7 @@
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
                             </p>
                         </div>
@@ -406,33 +406,41 @@
                             <div class="order-menu">
                                 <label for="orderBy">Order By:</label>
                                 <select id="orderBy" v-model="orderBy">
-                                    <option value="selected">Select</option>
+                                    <option value="selected" selected>Select</option>
                                     <option value="asc" selected>A-Z</option>
                                     <option value="desc">Z-A</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="levels-row">
-                            <div v-for="sign in signs" :key="sign.signID" class="level">
-                                <video 
-                                    :key="sign.video"
-                                    width="470" 
-                                    height="470"
-                                    autoplay
-                                    loop
-                                    muted
-                                    playsinline
-                                    style="transform: scaleX(-1);">
-                                    <source :src="sign.video" type="video/mp4">
-                                </video>
+                        <div class="signs-row">
+                            <div v-for="sign in sortedSigns" :key="sign.signID" class="sign">
+                                <div class="sign-wrapper">
+                                    <video 
+                                        :key="sign.video"
+                                        loop
+                                        muted
+                                        playsinline
+                                        controls
+                                        style="transform: scaleX(-1);">
+                                        <source :src="sign.video" type="video/mp4">
+                                    </video>
+                                </div>
+                                <div class="tut-desc">
+                                    <span class="sign-path">{{ sign.path }}</span>
+                                    <div v-if="!sign.signAName" class="sname"> {{ sign.signName }}</div>
+                                    <div v-else class="sname-wrapper">
+                                        <span v-if="!showEng" class="sname"> {{ sign.signAName }}</span>
+                                        <span v-else class="sname"> {{ sign.signName }} </span>
+                                        <span class="material-symbols-outlined" @click="toggleTranslate()" title="translate">translate</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </div>
                 </div>
                 <div v-if="showProfile">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                             <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                             <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -443,7 +451,7 @@
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
                             </p>
                         </div>
@@ -469,16 +477,42 @@
                             </div>
                         </div>
                     </div>
-                    <div class="prof-sect">
-                        <img :src="this.loggedInUser.image">
-                        <div class="prof-details">
-                            <h3>{{ this.loggedInUser.username }}</h3>
+                    <div class="prof-pg">
+                        <div class="prof-sect">
+                            <img :src="this.loggedInUser.image">
+                            <div class="prof-details">
+                                <h1>{{ loggedInUser.username }}</h1>
+                                <h3>League: {{ loggedInUser.league }}</h3>
+                                <h3>Path: {{ loggedInUser.path }}</h3>
+                                <h3>Friends: - <span style="margin-left: 50px; font-size: 20px; margin-top: 5px;" class="material-symbols-outlined" title="Feature coming soon!">info</span></h3>
+                            </div>
+                        </div>
+                        <div class="stats">
+                            <div class="stat-xp">
+                                <h1 style="margin-bottom: -3px;">Total XP</h1>
+                                <h1>{{ totalXPScore }}</h1>
+                            </div>
+                            <div class="current-level">
+                                <h1 style="margin-bottom: -3px;">Current Level</h1>
+                                <h1>{{loggedInUser.completedLevels }}/4</h1>
+                            </div>
+                        </div>
+                        <div class="badges-sect">
+                            <h2>Badges Earned:</h2>
+                            <div v-if="loggedInUser.badges">
+                                <div class="your-badges" v-for="badge in userBadges">
+                                    <img src="badge.badgeImg">
+                                </div>
+                            </div>
+                            <div v-else class="no-badge">
+                                Complete a level to win badges!
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div v-if="showLeaderboard">
                     <div class="header">
-                        <h1 v-text="sitename"></h1>
+                        <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                         <div class="nav-menu">
                             <p class="nav-item" id="home-link" v-on:click="showHomePage()" :class="{ active: showHome }">HOME</p>
                             <p class="nav-item" id="about-link" v-on:click="showAboutPage()" :class="{ active: showAbout }">ABOUT</p>
@@ -489,7 +523,7 @@
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
                             </p>
                         </div>
@@ -518,13 +552,13 @@
                     <div class="ld-sect">
                         <div class="ld-head">
                             <h3>Leaderboard</h3>
-                            <h3>Sign Starters</h3> <!-- change according to user's league name -->
+                            <h3>{{ loggedInUser.league }}</h3> <!-- change according to user's league name -->
                         </div>
                         <div class="ld-table">
                             <div class="ld-row" v-for="rank in leaderboard">
                                 <p class="ld-rank">{{ rank.rank }}</p>
                                 <p class="ld-name">{{ rank.username }}</p>
-                                <p class="ld-xp">{{ rank.totalXP }}</p>
+                                <p class="ld-xp">{{ rank.score }}XP</p>
                             </div>
                         </div>
                     </div>
@@ -571,7 +605,8 @@
                     "completedLevels": 0,
                     "totalXP": 0,
                     "image": "def_prof.png",
-                    "signScores": []
+                    "signScores": [],
+                    "league":"Sign Starters"
                 },
                 allUsers: [],
                 loggedInUser: {},
@@ -584,13 +619,14 @@
                 camera: null,
                 isCorrect: false,
                 sequence: [],
+                badges: [],
                 prediction: {
                     sign: "",
                     confidence: 0
                 },
                 isPredicting: false,
                 sortBy: "selected", //sorting menu
-                orderBy: "asc", //order menu - ascending/descending
+                orderBy: "selected", //order menu - ascending/descending
                 searchQuery: "", //stores search-bar's input
                 completedSigns: [],
                 signScores: [],
@@ -631,6 +667,13 @@
                         console.error('fetch error: ', err);
                     });
                 console.log(this.loggedInUser || "no user logged in!");
+
+                fetch("https://signquest-backend-yhj4.onrender.com/collection/badges")
+                    .then(res => res.json())
+                    .then(data => {
+                        this.badges = data;
+                    })
+                    .catch(err => console.error('fetch error:', err));
             },
             //watches for change in search bar and filters lesson data accordingly
             watch: {
@@ -646,9 +689,27 @@
                         }
                     },
                     deep: true
-                }
+                },
             },
             methods: {
+                getTutorials() {
+                    const searchQ = this.searchQuery.trim();
+                    let fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs';
+                    if (searchQ !== "") {
+                        fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs/search?q='+searchQ;
+                    }
+
+                    fetch(fetchURL)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.signs = data;
+                        console.log('signs loaded:', this.signs);
+                    })
+                    .catch(err => {
+                        console.error('fetch error: ', err);
+                    });
+
+                },
                 toggleTranslate() {
                     this.showEng = !this.showEng;
                 },
@@ -828,13 +889,6 @@
                         const predictedIndex = scores.indexOf(maxScore);
 
                         if (predictedIndex !== -1 && labels[predictedIndex] && labels[predictedIndex] != 'idle') {
-                            this.prediction = {
-                                sign: labels[predictedIndex],
-                                confidence: parseFloat((maxScore * 100).toFixed(1))
-                            };
-
-                            console.log("Predicted:", labels[predictedIndex], this.prediction.confidence + "%");
-
                             const result = labels[predictedIndex].toLowerCase().trim();
 
                             if (result !== 'idle' && maxScore > 0.7) {
@@ -842,10 +896,11 @@
                                     s => s.toLowerCase().trim() === result
                                 );
 
-                                console.log("signList raw:", JSON.stringify(this.currentPage.signList));
-                                console.log("result raw:", JSON.stringify(result));
-
                                 if (isTarget && !this.completedSigns.includes(result)) {
+                                    this.prediction = {
+                                        sign: labels[predictedIndex],
+                                        confidence: parseFloat((maxScore * 100).toFixed(1))
+                                    };
                                     const scorePercentage = +(maxScore * 100).toFixed(2);
                                     this.signScores.push({ sign: result, score: scorePercentage });
                                     this.totalLevelScore += scorePercentage;
@@ -953,6 +1008,7 @@
                     }
                 },
                 showLevelPage(pathChosen, pathImage) {
+                    this.showEng = true;
                     this.selectedPath = pathChosen;
                     this.pathImg = pathImage;
                     if (this.selectedPath === 'ASL') {
@@ -1047,17 +1103,7 @@
                     this.showSettings = false;
                 },
                 showTutorialPage() {
-                    fetch("https://signquest-backend-yhj4.onrender.com/collection/signs")
-                    .then(res => res.json())
-                    .then(data => {
-                        this.signs = data.map(sign => ({
-                            ...sign
-                        }));
-                        console.log('paths loaded:', this.paths);
-                    })
-                    .catch(err => {
-                        console.error('fetch error: ', err);
-                    });
+                    this.getTutorials();
 
                     this.showSignUp = false;
                     this.showLogin = false;
@@ -1151,9 +1197,19 @@
 
                     // mark current level as Passed (P) and unlock next level
                     this.selectedLevel.status = "P";
-                    const currentIndex = this.levels.findIndex(l => l.lvlID === levelID);
-                    if (currentIndex !== -1 && currentIndex + 1 < this.levels.length) {
-                        this.levels[currentIndex + 1].status = "U";
+                    let levelNo = 0;
+                    let nextLevel = "";
+                    if (this.selectedID === "LVL01") {
+                        levelNo = 1;
+                        nextLevel = this.levels.find(level => level.selectedID === "LVL02");
+                    } else if (this.selectedID === "LVL02") {
+                        levelNo = 2;
+                        nextLevel = this.levels.find(level => level.selectedID === "LVL03");
+                    } else if (this.selectedID === "LVL03") {
+                        levelNo = 3;
+                        nextLevel = this.levels.find(level => level.selectedID === "LVL04");
+                    } else {
+                        levelNo = 4;
                     }
 
                     // update level status in collection
@@ -1163,24 +1219,24 @@
                         body: JSON.stringify({ status: "P" }),
                     });
 
-                    const levelNo = 0;
-                    if (this.selectedID === "LVL01") {
-                        levelNo = 1;
-                    } else if (this.selectedID === "LVL02") {
-                        levelNo = 2;
-                    } else if (this.selectedID === "LVL03") {
-                        levelNo = 3;
-                    } else {
-                        levelNo = 4;
+                    //update next level status
+                    if (nextLevel) {
+                        fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${nextLevel._id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: "U" }),
+                        });
                     }
+
                     // update user profile
                     fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            completedLevels: this.loggedInUser.completedLevels + 1,
+                            completedLevels: levelNo,
                             totalXP: this.levelXP,
-                            signScores: this.signScores
+                            signScores: this.signScores,
+                            badges: this.loggedInUser.badges + 1
                         }),
                     })
                     .then(() => {
@@ -1240,13 +1296,10 @@
                         fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs/search?q='+searchQ;
                     }
 
-                fetch(fetchURL)
+                    fetch(fetchURL)
                     .then(res => res.json())
                     .then(data => {
-                        this.signs = data.map(sign => ({
-                            ...sign,
-                            image: 'https://signquest-backend-yhj4.onrender.com/'+sign.image
-                        }));
+                        this.signs = data;
                         console.log('signs loaded:', this.signs);
                     })
                     .catch(err => {
@@ -1283,7 +1336,8 @@
                                 "completedLevels": 0,
                                 "totalXP": 0,
                                 "image": "def_prof.png",
-                                "signScores":[]
+                                "signScores":[],
+                                "league":"Sign Starters"
                             }
 
                             document.getElementById("signup-form").reset()
@@ -1381,10 +1435,72 @@
                     return Object.keys(this.selectedLevel.storyline).length;
                 },
                 leaderboard() {
-                    return [...this.allUsers].sort((a,b) => b.totalXP - a.totalXP).map((user, index) => ({
+                    return [...this.allUsers]
+                    .map((user, index) => ({
                         ...user,
-                        "rank": index+1
+                        score: Object.values(user.totalXP).reduce((sum, val) => sum + (Number(val) || 0), 0)
+                    }))
+                    .sort((a, b) => b.score - a.score)
+                    .map((user, index) => ({
+                        ...user,
+                        rank: index + 1
                     }));
+                },
+                sortedSigns() {
+                    // create copy of signs
+                    let signsSorted = this.signs.slice(0);
+
+                    // if both options are default then return the current list
+                    if (this.sortBy === "selected" && this.orderBy === "selected") {
+                        return signsSorted;
+                    }
+
+                    signsSorted.sort((a, b) => {
+                        let attr1 = "";
+                        let attr2 = "";
+
+                        // Determine which attribute to compare based on the language selection
+                        if (this.sortBy === "ASL") {
+                            attr1 = a.signName ? a.signName.toLowerCase() : "";
+                            attr2 = b.signName ? b.signName.toLowerCase() : "";
+                        } 
+                        else if (this.sortBy === "ESL") {
+                            // Fallback to signName if signAName is missing
+                            attr1 = (a.signAName || a.signName).toLowerCase();
+                            attr2 = (b.signAName || b.signName).toLowerCase();
+                        } 
+                        else {
+                            // Default sorting if "Select" is picked for SortBy but an Order is chosen
+                            attr1 = a.signName.toLowerCase();
+                            attr2 = b.signName.toLowerCase();
+                        }
+
+                        let result = 0;
+                        if (attr1 < attr2) result = -1;
+                        if (attr1 > attr2) result = 1;
+
+                        return this.orderBy === "desc" ? -result : result;
+                    });
+
+                    return signsSorted;
+                },
+                userBadges() {
+                    if (!this.loggedInUser || this.loggedInUser.badges === 0 || !this.badges.length) return [];
+
+                    const userPath = this.loggedInUser.path;
+                    const badgeCount = this.loggedInUser.badges;
+                    console.log(badgeCount);
+
+                    return this.badges
+                        .filter(badge => badge.path === userPath)
+                        .sort((a, b) => a.levelID.localeCompare(b.levelID))
+                        .slice(0, badgeCount);
+                },
+                totalXPScore() {
+                    if (!this.loggedInUser || !this.loggedInUser.totalXP) return 0;
+                    
+                    return Object.values(this.loggedInUser.totalXP)
+                        .reduce((sum, val) => sum + (Number(val) || 0), 0);
                 },
                 pageBackground() {
                     if (this.showLesson && this.selectedLevel && this.selectedLevel.bgImage) {
@@ -1411,6 +1527,20 @@
                             width: '100vw',
                             color: 'white',
                             overflow: 'hidden',
+                            fontFamily: '"Poppins", sans-serif',
+                            zIndex: '-1'
+                        };
+                    } else if (this.showTutorial || this.showProfile) {
+                        return {
+                            background: 'linear-gradient(#14008f, #b159cb)',
+                            margin: '0',
+                            padding: '0',
+                            backgroundPosition: 'center',
+                            backgroundAttachment: 'fixed',
+                            height: '100vh',
+                            width: '100vw',
+                            color: 'white',
+                            overflowY: 'scroll',
                             fontFamily: '"Poppins", sans-serif',
                             zIndex: '-1'
                         };
