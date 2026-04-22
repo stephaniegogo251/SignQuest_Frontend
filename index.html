@@ -501,7 +501,7 @@
                             <h2>Badges Earned:</h2>
                             <div v-if="loggedInUser.badges">
                                 <div class="your-badges" v-for="badge in userBadges">
-                                    <img src="badge.badgeImg">
+                                    <img :src="badge.badgeImg">
                                 </div>
                             </div>
                             <div v-else class="no-badge">
