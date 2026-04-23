@@ -670,13 +670,6 @@
                         console.error('fetch error: ', err);
                     });
                 console.log(this.loggedInUser || "no user logged in!");
-
-                fetch("https://signquest-backend-yhj4.onrender.com/collection/badges")
-                    .then(res => res.json())
-                    .then(data => {
-                        this.badges = data;
-                    })
-                    .catch(err => console.error('fetch error:', err));
             },
             //watches for change in search bar and filters lesson data accordingly
             watch: {
@@ -1122,6 +1115,13 @@
                     this.showSettings = false;
                 },
                 showProfilePage() {
+                    fetch("https://signquest-backend-yhj4.onrender.com/collection/badges")
+                    .then(res => res.json())
+                    .then(data => {
+                        this.badges = data;
+                    })
+                    .catch(err => console.error('fetch error:', err));
+
                     this.showSignUp = false;
                     this.showLogin = false;
                     this.showHome = false;
@@ -1491,12 +1491,6 @@
                     const badgeCount = this.loggedInUser.badges;
                     console.log(badgeCount);
 
-                    let userkabadges = this.badges
-                        .filter(badge => badge.path === userPath)
-                        .sort((a, b) => a.levelID.localeCompare(b.levelID))
-                        .slice(0, badgeCount);
-
-                    console.log(userkabadges);
                     return this.badges
                         .filter(badge => badge.path === userPath)
                         .sort((a, b) => a.levelID.localeCompare(b.levelID))
