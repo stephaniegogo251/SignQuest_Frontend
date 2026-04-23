@@ -1239,7 +1239,7 @@
                                 const existing = allProgress.find(p => p.userID === this.loggedInUser.userID);
                                 const existingScores= existing ? { ...existing.signScores } : {};
 
-                                Object.keys(currentSignScores).forEach(([sign,score]) => {
+                                Object.entries(currentSignScores).forEach(([sign,score]) => {
                                     if (!existingScores[sign]) {
                                         existingScores[sign] = [];
                                     }
@@ -1272,6 +1272,7 @@
                             this.loggedInUser.completedLevels += 1;
                             this.stopCamera();
                             this.resetProgress();
+                            this.levelSignScores = {};
                             this.currentStep = 1;
                             this.showLesson = false;
                             alert("Congratulations! You have won a badge!");
