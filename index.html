@@ -1187,6 +1187,8 @@
                     const levelID = this.selectedLevel.lvlID;
                     this.levelXP[levelID] = finalLevelScore;
 
+                    const currentSignScores = {...this.levelSignScores};
+
                     // mark current level as Passed (P) and unlock next level
                     this.selectedLevel.status = "P";
                     let levelNo = 0;
