@@ -499,10 +499,8 @@
                         </div>
                         <div class="badges-sect">
                             <h2>Badges Earned:</h2>
-                            <div v-if="loggedInUser.badges">
-                                <div class="your-badges" v-for="badge in userBadges">
-                                    <img :src="badge.badgeImg">
-                                </div>
+                            <div v-if="loggedInUser.badges" class="your-badges">
+                                <img v-for="badge in userBadges" :key="badge._id" :src="badge.badgeImg" alt="badge_img">
                             </div>
                             <div v-else class="no-badge">
                                 Complete a level to win badges!
@@ -630,6 +628,7 @@
                 searchQuery: "", //stores search-bar's input
                 completedSigns: [],
                 signScores: [],
+                levelSignScores: {},
                 totalLevelScore: 0,
                 signCount: 0,
                 levelXP: {},
@@ -647,7 +646,7 @@
             created() {
                 this.loadModel("ASL");
                 this.loadModel("ESL");
-                // this.getLessons(); //fetch lesson data
+                
                 fetch("https://signquest-backend-yhj4.onrender.com/collection/users")
                     .then(res => res.json())
                     .then(data => {
@@ -657,7 +656,8 @@
                         }));
                         this.loggedInUser = this.allUsers.find(user => user.loggedIn == true);
                         if (this.loggedInUser) {
-                                this.showHomePage();
+                            this.levelXP = {...this.loggedInUser.totalXP};
+                            this.showHomePage();
                         } else {
                             this.showSignupPage();
                         }
@@ -903,6 +903,7 @@
                                     };
                                     const scorePercentage = +(maxScore * 100).toFixed(2);
                                     this.signScores.push({ sign: result, score: scorePercentage });
+                                    this.levelSignScores[result] = scorePercentage;
                                     this.totalLevelScore += scorePercentage;
                                     this.signCount++;
                                     this.completedSigns.push(result);
@@ -1235,7 +1236,7 @@
                         body: JSON.stringify({ 
                             completedLevels: levelNo,
                             totalXP: this.levelXP,
-                            signScores: this.signScores,
+                            signScores: currentSignScores,
                             badges: this.loggedInUser.badges + 1
                         }),
                     })
@@ -1245,17 +1246,19 @@
                             .then(res => res.json())
                             .then(allProgress => {
                                 const existing = allProgress.find(p => p.userID === this.loggedInUser.userID);
-                                const updatedSignScores = existing ? { ...existing.signScores } : {};
+                                const existingScores= existing ? { ...existing.signScores } : {};
 
-                                Object.keys(this.signScores).forEach(({sign,score}) => {
-                                    if (!updatedSignScores[sign]) updatedSignScores[sign] = [];
-                                    updatedSignScores[sign].push(score);
+                                Object.keys(currentSignScores).forEach(([sign,score]) => {
+                                    if (!existingScores[sign]) {
+                                        existingScores[sign] = [];
+                                    }
+                                    existingScores[sign].push(score);
                                 });
 
                                 const progressData = {
                                     progressID: 'P' + this.loggedInUser.userID.replace('user', '').padStart(3, '0'),
                                     userID: this.loggedInUser.userID,
-                                    signScores: updatedSignScores
+                                    signScores: existingScores
                                 };
 
                                 if (existing) {
@@ -1487,10 +1490,16 @@
                 userBadges() {
                     if (!this.loggedInUser || this.loggedInUser.badges === 0 || !this.badges.length) return [];
 
-                    const userPath = this.loggedInUser.path;
+                    const userPath = this.loggedInUser.selectedPath;
                     const badgeCount = this.loggedInUser.badges;
                     console.log(badgeCount);
 
+                    let userkabadges = this.badges
+                        .filter(badge => badge.path === userPath)
+                        .sort((a, b) => a.levelID.localeCompare(b.levelID))
+                        .slice(0, badgeCount);
+
+                    console.log(userkabadges);
                     return this.badges
                         .filter(badge => badge.path === userPath)
                         .sort((a, b) => a.levelID.localeCompare(b.levelID))

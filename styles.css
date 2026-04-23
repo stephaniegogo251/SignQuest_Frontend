@@ -156,7 +156,7 @@ body {
     gap: 15%;
     width: 45vw;
     height: 300px;
-    padding: 20px 45px;
+    padding: 20px 40px;
     border-radius: 30px;
     border: 4px solid rgba(0, 0, 0, 0.1);
     background: radial-gradient(circle, rgba(0, 0, 0, 0.05), rgba(85, 85, 85, 0.1));
@@ -166,14 +166,16 @@ body {
 
 .your-badges {
     display: flex;
+    flex-direction: row;
+    margin-left: -20px;
     align-items: center;
+    margin-top: -40px;
     gap: 10px;
 }
 
 .your-badges img {
-    width: 100px;
-    height: 120px;
-    border: 10px solid black;
+    width: 180px;
+    height: 180px;
 }
 
 .home-pg {
