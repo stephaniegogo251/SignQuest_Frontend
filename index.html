@@ -1192,6 +1192,9 @@
                     this.isCameraActive = true;
                 },
                 finishLevel() {
+                    const totalLevelScore = Object.values(this.levelSignScores)
+                    .reduce((sum, score) => sum + score, 0);
+                    
                     // calculate final level score
                     const totalSignsInLevel = Object.values(this.selectedLevel.storyline)
                         .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
