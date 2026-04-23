@@ -1218,6 +1218,8 @@
                         });
                     }
 
+                    const currentSignScores = {...this.levelSignScores};
+
                     // update user profile
                     fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
                         method: 'PUT',
