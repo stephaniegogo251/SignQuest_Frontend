@@ -652,7 +652,7 @@
                             image: 'https://signquest-backend-yhj4.onrender.com/static/'+users.image
                         }));
 
-                        const savedID = sessionStorage.getItem('loggedInUserID');
+                        const savedID = localStorage.getItem('loggedInUserID');
                         if (savedID) {
                             this.loggedInUser = this.allUsers.find(user => user._id === savedID);
                         }
@@ -1154,7 +1154,7 @@
                     this.showSettings = false;
                 },
                 logoutUser() {
-                    sessionStorage.removeItem('loggedInUserID');
+                    localStorage.removeItem('loggedInUserID');
                     this.loggedInUser = {};
                     this.showLogout = false;
                     this.showLoginPage();
@@ -1363,7 +1363,7 @@
                         .then(updatedStatus => {
                             console.log("Server response:", updatedStatus);
                             this.loggedInUser = userExists;
-                            sessionStorage.setItem('loggedInUserID', userExists._id);
+                            localStorage.setItem('loggedInUserID', userExists._id);
                             // Clear form
                             this.login_user.uname = "";
                             this.login_user.email = "";
