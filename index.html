@@ -1177,7 +1177,13 @@
                     this.isCameraActive = true;
                 },
                 finishLevel() {
-                    const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
+                    const totalSignsInLevel = Object.values(this.selectedLevel.storyline)
+                        .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
+
+                    const finalLevelScore = totalSignsInLevel > 0 
+                        ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10 / 10) * 10
+                        : 0;
+                        
                     const levelID = this.selectedLevel.lvlID;
                     this.levelXP[levelID] = finalLevelScore;
 
@@ -1434,6 +1440,17 @@
                     return Object.keys(this.selectedLevel.storyline).length;
                 },
                 leaderboard() {
+                    fetch("https://signquest-backend-yhj4.onrender.com/collection/users")
+                    .then(res => res.json())
+                    .then(data => {
+                        this.allUsers = data.map(users => ({
+                            ...users,
+                            image: 'https://signquest-backend-yhj4.onrender.com/static/'+users.image
+                        }));
+                    })
+                    .catch(err => {
+                        console.error('fetch error: ', err);
+                    });
                     return [...this.allUsers]
                     .map((user, index) => ({
                         ...user,
