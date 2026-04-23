@@ -304,10 +304,10 @@
                             </div>
                         </div>
                         <div>
-                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click="handlePageClick()">
+                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="handlePageClick()">
                                 FINISH
                             </button>
-                            <button v-else class="next-btn" @click="handlePageClick()">
+                            <button v-else class="next-btn" @click.stop="handlePageClick()">
                                 NEXT
                             </button>
                         </div>
@@ -1181,7 +1181,7 @@
                         .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
 
                     const finalLevelScore = totalSignsInLevel > 0 
-                        ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10 / 10) * 10
+                        ? Math.round((this.totalLevelScore / totalSignsInLevel) / 10) * 10
                         : 0;
 
                     const levelID = this.selectedLevel.lvlID;
