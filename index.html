@@ -1183,7 +1183,7 @@
                     const finalLevelScore = totalSignsInLevel > 0 
                         ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10 / 10) * 10
                         : 0;
-                        
+
                     const levelID = this.selectedLevel.lvlID;
                     this.levelXP[levelID] = finalLevelScore;
 
@@ -1204,36 +1204,40 @@
                         levelNo = 4;
                     }
 
-                    // update level status in collection
-                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: "P" }),
-                    });
-
-                    //update next level status
-                    if (nextLevel) {
-                        fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${nextLevel._id}`, {
+                    // update current and next level status first, then update user
+                    const levelUpdates = [
+                        fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: "U" }),
-                        });
+                            body: JSON.stringify({ status: "P" }),
+                        })
+                    ];
+
+                    if (nextLevel) {
+                        levelUpdates.push(
+                            fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${nextLevel._id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: "U" }),
+                            })
+                        );
                     }
 
-                    const currentSignScores = {...this.levelSignScores};
-
-                    // update user profile
-                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            completedLevels: levelNo,
-                            totalXP: this.levelXP,
-                            signScores: currentSignScores,
-                            badges: levelNo
-                        }),
-                    })
-                    .then(() => {
+                    Promise.all(levelUpdates)
+                        .then(() => {
+                            // update user profile
+                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    completedLevels: levelNo,
+                                    totalXP: this.levelXP,
+                                    signScores: currentSignScores,
+                                    badges: levelNo
+                                }),
+                            });
+                        })
+                        .then(() => {
                         // update progress collection
                         return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress`)
                             .then(res => res.json())
