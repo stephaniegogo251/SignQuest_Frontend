@@ -597,7 +597,6 @@
                 user: {
                     "username": "",
                     "email": "",
-                    "loggedIn": false,
                     "badges": 0,
                     "selectedPath": "",
                     "completedLevels": 0,
@@ -654,7 +653,12 @@
                             ...users,
                             image: 'https://signquest-backend-yhj4.onrender.com/static/'+users.image
                         }));
-                        this.loggedInUser = this.allUsers.find(user => user.loggedIn == true);
+
+                        const savedID = sessionStorage.getItem('loggedInUserID');
+                        if (savedID) {
+                            this.loggedInUser = this.allUsers.find(user => user._id === savedID);
+                        }
+
                         if (this.loggedInUser) {
                             this.levelXP = {...this.loggedInUser.totalXP};
                             this.showHomePage();
@@ -1152,23 +1156,10 @@
                     this.showSettings = false;
                 },
                 logoutUser() {
-                    fetch('https://signquest-backend-yhj4.onrender.com/collection/users/'+this.loggedInUser._id, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json', //set data type as json
-                        },
-                        body: JSON.stringify({loggedIn:false}),
-                    })
-                    .then(response => response.json())
-                    .then(updatedStatus => {
-                        console.log(updatedStatus)
-                        this.loggedInUser = {};
-                        this.showLogout = false;
-                        this.showLoginPage();
-                    })
-                    .catch((error) => {
-                        console.log("fetch error: ", error);
-                    });
+                    sessionStorage.removeItem('loggedInUserID');
+                    this.loggedInUser = {};
+                    this.showLogout = false;
+                    this.showLoginPage();
                 },
                 handlePageClick() {
                     if (this.currentPage.S && !this.isCorrect) {
@@ -1333,7 +1324,6 @@
                             this.user = {
                                 "username": "",
                                 "email": "",
-                                "loggedIn": false,
                                 "badges": 0,
                                 "selectedPath": "",
                                 "completedLevels": 0,
@@ -1373,7 +1363,7 @@
                         .then(updatedStatus => {
                             console.log("Server response:", updatedStatus);
                             this.loggedInUser = userExists;
-                            this.loggedInUser.loggedIn = true;
+                            sessionStorage.setItem('loggedInUserID', userExists._id);
                             // Clear form
                             this.login_user.uname = "";
                             this.login_user.email = "";
