@@ -661,6 +661,7 @@
                             this.levelXP = {...this.loggedInUser.totalXP};
                             this.showHomePage();
                         } else {
+                            localStorage.removeItem('loggedInUserID');
                             this.showSignupPage();
                         }
                         console.log('users loaded:', this.allUsers);
@@ -1183,7 +1184,7 @@
                     console.log('totalLevelScore:', this.totalLevelScore);
                     console.log('levelXP before:', this.levelXP);
                     const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
-                    const levelID = this.selectedLevel.lvlID;
+                    const levelID = this.selectedLevel.levelID;
                     this.levelXP[levelID] = finalLevelScore;
                     console.log('levelXP after:', this.levelXP);
                     console.log('finalLevelScore:', finalLevelScore);
@@ -1201,13 +1202,13 @@
                     let nextLevel = "";
                     if (this.selectedID === "LVL01") {
                         levelNo = 1;
-                        nextLevel = this.levels.find(level => level.selectedID === "LVL02");
+                        nextLevel = this.levels.find(level => level.lvlID === "LVL02");
                     } else if (this.selectedID === "LVL02") {
                         levelNo = 2;
-                        nextLevel = this.levels.find(level => level.selectedID === "LVL03");
+                        nextLevel = this.levels.find(level => level.lvlID === "LVL03");
                     } else if (this.selectedID === "LVL03") {
                         levelNo = 3;
-                        nextLevel = this.levels.find(level => level.selectedID === "LVL04");
+                        nextLevel = this.levels.find(level => level.lvlID === "LVL04");
                     } else {
                         levelNo = 4;
                     }
@@ -1279,14 +1280,23 @@
                     })
                     .then(response => {
                         if (response.ok) {
-                            this.loggedInUser.completedLevels += 1;
-                            this.stopCamera();
-                            this.resetProgress();
-                            this.levelSignScores = {};
-                            this.currentStep = 1;
-                            this.showLesson = false;
-                            alert("Congratulations! You have won a badge!");
-                            this.showProfilePage();
+                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`)
+                            .then(res => res.json())
+                            .then(updatedUser => {
+                                // Update loggedInUser with fresh data from DB
+                                this.loggedInUser = {
+                                    ...updatedUser,
+                                    image: 'https://signquest-backend-yhj4.onrender.com/static/' + updatedUser.image
+                                };
+                                this.levelXP = { ...updatedUser.totalXP };
+                                this.stopCamera();
+                                this.resetProgress();
+                                this.levelSignScores = {};
+                                this.currentStep = 1;
+                                this.showLesson = false;
+                                alert("Congratulations! You have won a badge!");
+                                this.showProfilePage();
+                            });
                         }
                     })
                     .catch(err => console.error("Update failed:", err));
