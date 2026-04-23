@@ -20,7 +20,7 @@
             <div v-if="showSignUp" class="sign-up-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
                     <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
-                    <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
+                    <h1 v-text="sitename"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
                 <form class="signup-form" id="signup-form">
@@ -34,7 +34,7 @@
             <div v-if="showLogin" class="login-pg">
                 <div class="su-logo"> <!-- sign up page with logo -->
                     <img src="https://signquest-backend-yhj4.onrender.com/signquest_mp2.png" alt="signquest logo">
-                    <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
+                    <h1 v-text="sitename"></h1>
                     <p>Unlock 2 Worlds with just your hands!</p>
                 </div>
                 <form class="login-form" id="login-form">
@@ -45,7 +45,7 @@
                     <p>Don't Have an Account? <span @click="showSignupPage()" class="signup-link">Sign Up</span></p>
                 </form>
             </div>
-            <div v-if="showHome">
+            <div v-if="showHome && loggedInUser">
                 <div class="header">
                     <h1 v-text="sitename" v-on:click="showHomePage()"></h1>
                     <div class="nav-menu">
