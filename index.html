@@ -582,6 +582,7 @@
                 showLogout: false,
                 showEng: false,
                 selectedPath: "",
+                pathImg: "",
                 paths: "",
                 signs: "",
                 selectedLevel: "",
@@ -1003,36 +1004,50 @@
                     }
                 },
                 showLevelPage(pathChosen, pathImage) {
-                    this.showEng = true;
+                    this.showEng = false;
                     this.selectedPath = pathChosen;
                     this.pathImg = pathImage;
-                    if (this.selectedPath === 'ASL') {
-                        fetch("https://signquest-backend-yhj4.onrender.com/collection/asl")
-                            .then(res => res.json())
-                            .then(data => {
-                                this.levels = data.map(asl => ({
-                                    ...asl,
-                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/'+asl.bgImage
-                                }));
-                                console.log('levels loaded:', this.levels);
-                            })
-                            .catch(err => {
-                                console.error('fetch error: ', err);
-                            });
-                    } else {
-                        fetch("https://signquest-backend-yhj4.onrender.com/collection/esl")
-                            .then(res => res.json())
-                            .then(data => {
-                                this.levels = data.map(esl => ({
-                                    ...esl,
-                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/'+esl.bgImage
-                                }));
-                                console.log('levels loaded:', this.levels);
-                            })
-                            .catch(err => {
-                                console.error('fetch error: ', err);
-                            });
-                    }
+                    
+                    const collection = pathChosen === 'ASL' ? 'asl' : 'esl';
+
+                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            this.levels = data.map(level => ({
+                                ...level,
+                                bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage
+                            }));
+                            console.log('levels loaded:', this.levels);
+
+                            // unlock next level based on completedLevels
+                            const completedCount = this.loggedInUser.completedLevels;
+                            if (completedCount > 0 && completedCount < 4) {
+                                const nextLevelID = 'LVL0' + (completedCount + 1);
+                                const nextLevel = this.levels.find(l => l.lvlID === nextLevelID);
+                                if (nextLevel && nextLevel.status === 'L') {
+                                    // unlock it in DB
+                                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}/${nextLevel._id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ status: "U" })
+                                    })
+                                    .then(() => {
+                                        // refetch levels so UI reflects the update
+                                        return fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}`)
+                                            .then(res => res.json())
+                                            .then(freshData => {
+                                                this.levels = freshData.map(level => ({
+                                                    ...level,
+                                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage
+                                                }));
+                                            });
+                                    })
+                                    .catch(err => console.error('unlock error:', err));
+                                }
+                            }
+                        })
+                        .catch(err => console.error('fetch error:', err));
+                        
                     this.showSignUp = false;
                     this.showLogin = false;
                     this.showHome = false;
@@ -1177,80 +1192,51 @@
                     this.isCameraActive = true;
                 },
                 finishLevel() {
+                    // calculate final level score
                     const totalSignsInLevel = Object.values(this.selectedLevel.storyline)
                         .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
-
-                    const finalLevelScore = totalSignsInLevel > 0 
-                        ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10) * 10
+                    const finalLevelScore = totalSignsInLevel > 0
+                        ? Math.round((this.totalLevelScore / totalSignsInLevel) / 10) * 10
                         : 0;
 
                     const levelID = this.selectedLevel.lvlID;
                     this.levelXP[levelID] = finalLevelScore;
 
-                    const currentSignScores = {...this.levelSignScores};
+                    const currentSignScores = { ...this.levelSignScores };
 
-                    // mark current level as Passed (P) and unlock next level
                     this.selectedLevel.status = "P";
-                    let levelNo = 0;
-                    let nextLevel = "";
-                    if (this.selectedID === "LVL01") {
-                        levelNo = 1;
-                        nextLevel = this.levels.find(level => level.lvlID === "LVL02");
-                    } else if (this.selectedID === "LVL02") {
-                        levelNo = 2;
-                        nextLevel = this.levels.find(level => level.lvlID === "LVL03");
-                    } else if (this.selectedID === "LVL03") {
-                        levelNo = 3;
-                        nextLevel = this.levels.find(level => level.lvlID === "LVL04");
-                    } else {
-                        levelNo = 4;
-                    }
+                    const levelNumbers = { 'LVL01': 1, 'LVL02': 2, 'LVL03': 3, 'LVL04': 4 };
+                    const levelNo = levelNumbers[this.selectedID] || 0;
 
-                    // update current and next level status first, then update user
-                    const levelUpdates = [
-                        fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
+                    // mark current level as passed
+                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: "P" }),
+                    })
+                    // update user profile
+                    .then(() => {
+                        return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: "P" }),
-                        })
-                    ];
-
-                    if (nextLevel) {
-                        levelUpdates.push(
-                            fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${nextLevel._id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ status: "U" }),
-                            })
-                        );
-                    }
-
-                    Promise.all(levelUpdates)
-                        .then(() => {
-                            // update user profile
-                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ 
-                                    completedLevels: levelNo,
-                                    totalXP: this.levelXP,
-                                    signScores: currentSignScores,
-                                    badges: levelNo
-                                }),
-                            });
-                        })
-                        .then(() => {
-                        // update progress collection
+                            body: JSON.stringify({ 
+                                completedLevels: levelNo,
+                                totalXP: this.levelXP,
+                                signScores: currentSignScores,
+                                badges: levelNo
+                            }),
+                        });
+                    })
+                    // update progress collection
+                    .then(() => {
                         return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress`)
                             .then(res => res.json())
                             .then(allProgress => {
                                 const existing = allProgress.find(p => p.userID === this.loggedInUser.userID);
-                                const existingScores= existing ? { ...existing.signScores } : {};
+                                const existingScores = existing ? { ...existing.signScores } : {};
 
-                                Object.entries(currentSignScores).forEach(([sign,score]) => {
-                                    if (!existingScores[sign]) {
-                                        existingScores[sign] = [];
-                                    }
+                                Object.entries(currentSignScores).forEach(([sign, score]) => {
+                                    if (!existingScores[sign]) existingScores[sign] = [];
                                     existingScores[sign].push(score);
                                 });
 
@@ -1260,14 +1246,15 @@
                                     signScores: existingScores
                                 };
 
+                                const progressURL = `https://signquest-backend-yhj4.onrender.com/collection/progress`;
                                 if (existing) {
-                                    return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress/${existing._id}`, {
+                                    return fetch(`${progressURL}/${existing._id}`, {
                                         method: 'PUT',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(progressData)
                                     });
                                 } else {
-                                    return fetch(`https://signquest-backend-yhj4.onrender.com/collection/progress`, {
+                                    return fetch(progressURL, {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(progressData)
@@ -1275,9 +1262,9 @@
                                 }
                             });
                     })
-                    .then(response => {
-                        if (response.ok) {
-                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users`)
+                    // re-fetch updated user
+                    .then(() => {
+                        return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users`)
                             .then(res => res.json())
                             .then(allUsers => {
                                 const updatedUser = allUsers.find(u => u.userID === this.loggedInUser.userID);
@@ -1289,14 +1276,17 @@
                                 this.stopCamera();
                                 this.resetProgress();
                                 this.levelSignScores = {};
+                                this.isFinishing = false;
                                 this.currentStep = 1;
                                 this.showLesson = false;
                                 alert("Congratulations! You have won a badge! To view your badge, please go to your profile page.");
-                                this.showLevelPage();
+                                this.showLevelPage(this.selectedPath, this.pathImg);
                             });
-                        }
                     })
-                    .catch(err => console.error("Update failed:", err));
+                    .catch(err => {
+                        console.error("Update failed:", err);
+                        this.isFinishing = false;
+                    });
                 },
                 //method to fetch lessons from server along with filtered lessons if search query is given by user
                 getTutorials() {
