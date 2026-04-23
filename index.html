@@ -1264,10 +1264,10 @@
                     })
                     .then(response => {
                         if (response.ok) {
-                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users/${this.loggedInUser._id}`)
+                            return fetch(`https://signquest-backend-yhj4.onrender.com/collection/users`)
                             .then(res => res.json())
-                            .then(updatedUser => {
-                                // Update loggedInUser with fresh data from DB
+                            .then(allUsers => {
+                                const updatedUser = allUsers.find(u => u.userID === this.loggedInUser.userID);
                                 this.loggedInUser = {
                                     ...updatedUser,
                                     image: 'https://signquest-backend-yhj4.onrender.com/static/' + updatedUser.image
