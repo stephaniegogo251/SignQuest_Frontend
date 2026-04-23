@@ -304,7 +304,7 @@
                             </div>
                         </div>
                         <div>
-                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click.stop="finishLevel">
+                            <button v-if="currentStep === totalSteps && (!currentPage.S || isCorrect)" class="finish-btn" @click="handlePageClick()">
                                 FINISH
                             </button>
                             <button v-else class="next-btn" @click="handlePageClick()">
@@ -481,7 +481,7 @@
                             <div class="prof-details">
                                 <h1>{{ loggedInUser.username }}</h1>
                                 <h3>League: {{ loggedInUser.league }}</h3>
-                                <h3>Path: {{ loggedInUser.path }}</h3>
+                                <h3>Path: {{ loggedInUser.selectedPath }}</h3>
                                 <h3>Friends: - <span style="margin-left: 50px; font-size: 20px; margin-top: 5px;" class="material-symbols-outlined" title="Feature coming soon!">info</span></h3>
                             </div>
                         </div>
@@ -797,9 +797,6 @@
                     }
 
                     if (this.sequence.length === 30) {
-                    // if (!this.isPredicting && !this.isCorrect) {
-                    //     this.predictSign();
-                    // }
                         this.predictSign();
                     }
 
@@ -838,6 +835,7 @@
                     return clean;
                 },
                 predictSign() {
+                    console.log('isPredicting:', this.isPredicting, '| sequence length:', this.sequence.length);
                     if (this.sequence.length !== 30 || this.isPredicting) return;
 
                     this.isPredicting = true;
