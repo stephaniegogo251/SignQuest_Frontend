@@ -1179,6 +1179,7 @@
                 finishLevel() {
                     const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
                     const levelID = this.selectedLevel.lvlID;
+                    this.levelXP[levelID] = finalLevelScore;
 
                     // mark current level as Passed (P) and unlock next level
                     this.selectedLevel.status = "P";
