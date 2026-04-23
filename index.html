@@ -658,10 +658,11 @@
                             this.loggedInUser = this.allUsers.find(user => user._id === savedID);
                         }
 
-                        if (this.loggedInUser) {
+                        if (this.loggedInUser & this.loggedInUser.totalXP) {
                             this.levelXP = {...this.loggedInUser.totalXP};
                             this.showHomePage();
                         } else {
+                            this.levelXP = {};
                             localStorage.removeItem('loggedInUserID');
                             this.showSignupPage();
                         }
@@ -1194,16 +1195,11 @@
                 finishLevel() {
                     const totalLevelScore = Object.values(this.levelSignScores)
                     .reduce((sum, score) => sum + score, 0);
-                    
-                    // calculate final level score
-                    const totalSignsInLevel = Object.values(this.selectedLevel.storyline)
-                        .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
-                    const finalLevelScore = totalSignsInLevel > 0
-                        ? Math.round((this.totalLevelScore / totalSignsInLevel) / 10) * 10
-                        : 0;
+
+                    const roundedFinalScore = Math.round(totalLevelScore / 10) * 10;
 
                     const levelID = this.selectedLevel.lvlID;
-                    this.levelXP[levelID] = finalLevelScore;
+                    this.levelXP[levelID] = roundedFinalScore;
 
                     const currentSignScores = { ...this.levelSignScores };
 
@@ -1224,7 +1220,8 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
                                 completedLevels: levelNo,
-                                totalXP: this.levelXP,
+                                levelID: levelID,
+                                score: roundedFinalScore,
                                 signScores: currentSignScores,
                                 badges: levelNo
                             }),
