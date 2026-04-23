@@ -54,9 +54,9 @@
                         <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                         <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                         <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                         <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                         <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                         style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                             settings
@@ -65,13 +65,13 @@
                     <div class="settings_box" v-if="showSettings">
                         <h1>Settings</h1>
                         <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                        <p>Theme:</p>
+                        <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                         <div>
-                            <input type="radio" id="light" name="display" value="lock1">
+                            <input type="radio" id="light" name="display" value="lock1" checked checked>
                             <label class="display-type" for="light">Light</label>
                         </div>
                         <div>
-                            <input type="radio" id="dark" name="display" value="lock2">
+                            <input type="radio" id="dark" name="display" value="lock2" disabled disabled>
                             <label class="display-type" for="dark">Dark</label>
                         </div>
                         <a @click="showLogoutDialogue()">Logout</a>
@@ -126,9 +126,9 @@
                             <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                             <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                             <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
@@ -137,13 +137,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -162,7 +162,8 @@
                             Emirati Sign Language. This website was designed to be accessible to all currently supports 
                             20 signs for both sign languages, including both words and phrases commonly used in 
                             real-world scenarios. SignQuest is currently being developed and will soon support fingerspelling 
-                            as well as more phrases for both sign languages!</p>
+                            as well as more phrases for both sign languages! 
+                            <a href="https://stephisan25.wixsite.com/project-odyssey" style="color: #fff; text-decoration: none;" title="Learn more about how I made SignQuest"><span class="material-symbols-outlined" style="position: relative;font-size: 25px; left: 5px; top: 2px; padding: 1px; border: 2px solid #fff;">arrow_outward</span></a></p>
                     </div>
                     <div class="other-sects">
                         <div class="thanks-sect">
@@ -193,9 +194,9 @@
                         <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                         <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                         <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                         <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                        style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                         <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                         style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                             settings
@@ -204,13 +205,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -243,9 +244,9 @@
                             <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                             <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                             <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
@@ -254,13 +255,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -359,9 +360,9 @@
                             <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                             <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                             <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
@@ -370,13 +371,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -445,9 +446,9 @@
                             <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                             <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                             <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
@@ -456,13 +457,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -515,9 +516,9 @@
                             <p class="nav-item" id="path-link" v-on:click="showPathPage()" :class="{ active: showPaths }">LEVELS</p>
                             <p class="nav-item" id="tut-link" v-on:click="showTutorialPage()" :class="{ active: showTutorial }">TUTORIALS</p>
                             <p class="material-symbols-outlined filled" id="lead-link" v-on:click="showLeaderboardPage()" v-if="showLeaderboard"
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" id="lead-link" v-on:click="showLeaderboardPage()" v-else
-                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;">LEADERBOARD</p>
+                            style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="leaderboard">LEADERBOARD</p>
                             <p class="material-symbols-outlined" v-on:click="showSettingsPage()"
                             style="color: #b867de; font-size: 40px; margin: 20px 10px 20px 20px;" title="Settings">
                                 settings
@@ -526,13 +527,13 @@
                         <div class="settings_box" v-if="showSettings">
                             <h1>Settings</h1>
                             <p v-on:click="showProfilePage()" class="prof-link">Profile</p>
-                            <p>Theme:</p>
+                            <p>Theme: <span style="font-size: 7px; opacity: 0.7;">Coming soon!</span></p>
                             <div>
-                                <input type="radio" id="light" name="display" value="lock1">
+                                <input type="radio" id="light" name="display" value="lock1" checked>
                                 <label class="display-type" for="light">Light</label>
                             </div>
                             <div>
-                                <input type="radio" id="dark" name="display" value="lock2">
+                                <input type="radio" id="dark" name="display" value="lock2" disabled>
                                 <label class="display-type" for="dark">Dark</label>
                             </div>
                             <a @click="showLogoutDialogue()">Logout</a>
@@ -547,7 +548,7 @@
                     </div>
                     <div class="ld-sect">
                         <div class="ld-head">
-                            <h3>Leaderboard</h3>
+                            <h3 title="leaderboard">Leaderboard</h3>
                             <h3>{{ loggedInUser.league }}</h3> <!-- change according to user's league name -->
                         </div>
                         <div class="ld-table">
@@ -1451,6 +1452,7 @@
                         console.error('fetch error: ', err);
                     });
                     return [...this.allUsers]
+                    .filter(user => user.selectedPath === this.loggedInUser.selectedPath)
                     .map((user, index) => ({
                         ...user,
                         score: Object.values(user.totalXP).reduce((sum, val) => sum + (Number(val) || 0), 0)
