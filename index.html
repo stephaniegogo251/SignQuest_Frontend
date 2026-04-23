@@ -1204,8 +1204,12 @@
                     const currentSignScores = { ...this.levelSignScores };
 
                     this.selectedLevel.status = "P";
-                    const levelNumbers = { 'LVL01': 1, 'LVL02': 2, 'LVL03': 3, 'LVL04': 4 };
-                    const levelNo = levelNumbers[this.selectedID] || 0;
+
+                    const updatedTotalXP = {
+                        ...this.loggedInUser.totalXP,
+                        [levelID]: roundedFinalScore
+                    };
+                    const newCount = Object.keys(updatedTotalXP).length;
 
                     // mark current level as passed
                     fetch(`https://signquest-backend-yhj4.onrender.com/collection/${this.selectedPath}/${this.selectedLevel._id}`, {
@@ -1219,11 +1223,10 @@
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
-                                completedLevels: levelNo,
-                                levelID: levelID,
-                                score: roundedFinalScore,
+                                completedLevels: newCount,
+                                totalXP: updatedTotalXP,
                                 signScores: currentSignScores,
-                                badges: levelNo
+                                badges: newCount
                             }),
                         });
                     })
