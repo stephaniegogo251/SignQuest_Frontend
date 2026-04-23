@@ -1179,22 +1179,8 @@
                     this.isCameraActive = true;
                 },
                 finishLevel() {
-
-                    console.log('signCount:', this.signCount);
-                    console.log('totalLevelScore:', this.totalLevelScore);
-                    console.log('levelXP before:', this.levelXP);
                     const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
-                    const levelID = this.selectedLevel.levelID;
-                    this.levelXP[levelID] = finalLevelScore;
-                    console.log('levelXP after:', this.levelXP);
-                    console.log('finalLevelScore:', finalLevelScore);
-
-                    // calculate level score (average of all sign scores)
-                    // const finalLevelScore = parseFloat((this.totalLevelScore / this.signCount).toFixed(2));
-                    // const levelID = this.selectedLevel.lvlID;
-
-                    // update the levelXP object
-                    this.levelXP[levelID] = finalLevelScore;
+                    const levelID = this.selectedLevel.lvlID;
 
                     // mark current level as Passed (P) and unlock next level
                     this.selectedLevel.status = "P";
