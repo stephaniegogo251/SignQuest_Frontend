@@ -282,7 +282,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showLesson && selectedLevel.status=='U'" class="lesson-pg">
+                <div v-if="showLesson && selectedLevel.status !== 'L'" class="lesson-pg">
                     <div class="top-lesson">
                         <div class="close-btn" @click="exitLevel()">
                             CLOSE
@@ -995,7 +995,7 @@
                     this.showLeaderboard = false;
                     this.showSettings = false;
 
-                    if (this.selectedLevel.status === 'U') {
+                    if (this.selectedLevel.status !== 'L') {
                         this.showLesson = true;
                     } else {
                         this.showLesson = false;
