@@ -1181,7 +1181,7 @@
                         .reduce((sum, page) => sum + (page.signList ? page.signList.length : 0), 0);
 
                     const finalLevelScore = totalSignsInLevel > 0 
-                        ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10)
+                        ? Math.round((this.totalLevelScore / totalSignsInLevel) * 10) * 10
                         : 0;
 
                     const levelID = this.selectedLevel.lvlID;
