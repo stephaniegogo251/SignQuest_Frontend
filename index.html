@@ -1052,7 +1052,7 @@
                                     bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage,
                                     status: status
                                 };
-                            });
+                            }).sort((a, b) => a.lvlID.localeCompare(b.lvlID));
                             console.log('levels loaded:', this.levels);
                         })
                         .catch(err => console.error('fetch error:', err));
