@@ -505,6 +505,32 @@
                                 Complete a level to win badges!
                             </div>
                         </div>
+                        <div class="sign-progress-sect">
+                            <h2>Sign Progress:</h2>
+                            <div v-if="Object.keys(signProgress).length">
+                                <table class="progress-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sign</th>
+                                            <th>Attempts</th>
+                                            <th>Best Score</th>
+                                            <th>Average Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(scores, signName) in signProgress" :key="signName">
+                                            <td style="text-align: left;">{{ signName }}</td>
+                                            <td>{{ scores.length }}</td>
+                                            <td>{{ Math.max(...scores).toFixed(2) }}%</td>
+                                            <td>{{ (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) }}%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-else class="no-progress">
+                                Play a level to see your scores for each sign!
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div v-if="showLeaderboard">
@@ -582,6 +608,7 @@
                 showSettings: false,
                 showLogout: false,
                 showEng: false,
+                signProgress: {},
                 selectedPath: "",
                 pathImg: "",
                 paths: "",
@@ -1127,6 +1154,14 @@
                     })
                     .catch(err => console.error('fetch error:', err));
 
+                    fetch("https://signquest-backend-yhj4.onrender.com/collection/progress")
+                    .then(res => res.json())
+                    .then(data => {
+                        const userProgress = data.find(p => p.userID === this.loggedInUser.userID);
+                        this.signProgress = userProgress ? userProgress.signScores : {};
+                    })
+                    .catch(err => console.error('fetch error:', err));
+
                     this.showSignUp = false;
                     this.showLogin = false;
                     this.showHome = false;
@@ -1530,6 +1565,7 @@
                             padding: '0',
                             backgroundPosition: 'center',
                             backgroundAttachment: 'fixed',
+                            overflowX: 'hidden',
                             height: '100vh',
                             width: '100vw',
                             color: 'white',

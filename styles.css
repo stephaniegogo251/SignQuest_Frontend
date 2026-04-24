@@ -151,7 +151,7 @@ body {
     1px 1px 0 #000;
 }
 
-.badges-sect {
+.badges-sect, .sign-progress-sect {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -165,6 +165,56 @@ body {
     background: radial-gradient(circle, rgba(0, 0, 0, 0.05), rgba(85, 85, 85, 0.1));
     filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.5));
     margin-bottom: 30px;
+}
+
+.sign-progress-sect {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 20px 60px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 70px 0;
+    margin-top: -30px;
+    margin-left: -60px;
+}
+
+table th {
+    text-align: justify;
+    width: 32%;
+    text-wrap: nowrap;
+}
+
+table td {
+    text-align: center;
+    width: 32%;
+    text-wrap: nowrap;
+}
+
+.sign-progress-sect::-webkit-scrollbar {
+    width: 10px;
+}
+
+.sign-progress-sect::-webkit-scrollbar-track {
+    background: rgba(242, 242, 242, 0.3);
+    border-radius: 10px;
+}
+
+.sign-progress-sect::-webkit-scrollbar-thumb {
+    background-color: rgba(107, 70, 193, 0.5);
+    border-radius: 10px;
+}
+
+.sign-progress-sect::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 70, 193, 1);
+}
+
+
+.no-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .your-badges {
