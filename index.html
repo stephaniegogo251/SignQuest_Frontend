@@ -1308,7 +1308,7 @@
                         this.isFinishing = false;
                     });
                 },
-                //method to fetch lessons from server along with filtered lessons if search query is given by user
+                //method to fetch tutorials from server along with filtered lessons if search query is given by user
                 getTutorials() {
                     console.log('requesting data from server ...')
 
@@ -1355,15 +1355,8 @@
                                 alert("Your account has been created!");
                                 this.allUsers = [...nowUsers, newUser]; // keep allUsers in sync
                                 this.user = {
-                                    "username": "",
-                                    "email": "", 
-                                    "badges": 0,
-                                    "selectedPath": "", 
-                                    "completedLevels": 0,
-                                    "totalXP": 0, 
-                                    "image": "def_prof.png",
-                                    "signScores": [], 
-                                    "league": "Sign Starters"
+                                    "username": "", "email": "", "badges": 0, "selectedPath": "", "completedLevels": 0, 
+                                    "totalXP": 0, "image": "def_prof.png","signScores": [], "league": "Sign Starters"
                                 };
                                 this.showLoginPage();
                             });
