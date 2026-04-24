@@ -580,9 +580,6 @@
                             <h3>{{ loggedInUser.league }}</h3> <!-- change according to user's league name -->
                         </div>
                         <div class="ld-table">
-                            <div class="no-path" v-if="!selectedPath">
-                                Select a Path to see your competitors
-                            </div>
                             <div class="ld-row" v-for="rank in leaderboard" v-else>
                                 <div>
                                     <p class="ld-rank">{{ rank.rank }}</p>
@@ -626,6 +623,7 @@
                 selectedID: "",
                 demo: true,
                 cam: false,
+                isSubmitting: false,
                 ASL: [],
                 ESL: [],
                 user: {
@@ -693,9 +691,12 @@
                             this.loggedInUser = this.allUsers.find(user => user._id === savedID);
                         }
 
-                        if (this.loggedInUser && this.loggedInUser.totalXP) {
-                            this.levelXP = {...this.loggedInUser.totalXP};
+                        if (this.loggedInUser && this.loggedInUser._id) {
+                            this.levelXP = this.loggedInUser.totalXP && typeof this.loggedInUser.totalXP === 'object' 
+                                ? { ...this.loggedInUser.totalXP } 
+                                : {};
                             this.showHomePage();
+
                         } else {
                             this.levelXP = {};
                             localStorage.removeItem('loggedInUserID');
@@ -725,24 +726,6 @@
                 },
             },
             methods: {
-                getTutorials() {
-                    const searchQ = this.searchQuery.trim();
-                    let fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs';
-                    if (searchQ !== "") {
-                        fetchURL = 'https://signquest-backend-yhj4.onrender.com/collection/signs/search?q='+searchQ;
-                    }
-
-                    fetch(fetchURL)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.signs = data;
-                        console.log('signs loaded:', this.signs);
-                    })
-                    .catch(err => {
-                        console.error('fetch error: ', err);
-                    });
-
-                },
                 toggleTranslate() {
                     this.showEng = !this.showEng;
                 },
@@ -1486,9 +1469,11 @@
                     });
                     return [...this.allUsers]
                     .filter(user => user.selectedPath === this.loggedInUser.selectedPath)
-                    .map((user, index) => ({
+                    .map((user) => ({
                         ...user,
-                        score: Object.values(user.totalXP).reduce((sum, val) => sum + (Number(val) || 0), 0)
+                        score: user.totalXP && typeof user.totalXP === 'object'
+                            ? Object.values(user.totalXP).reduce((sum, val) => sum + (Number(val) || 0), 0)
+                            : 0
                     }))
                     .sort((a, b) => b.score - a.score)
                     .map((user, index) => ({

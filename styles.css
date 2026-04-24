@@ -211,7 +211,7 @@ table td {
 }
 
 
-.no-progress, .no-path {
+.no-progress {
     display: flex;
     align-items: center;
     justify-content: center;
