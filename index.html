@@ -1015,38 +1015,28 @@
                     fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}`)
                         .then(res => res.json())
                         .then(data => {
-                            this.levels = data.map(level => ({
-                                ...level,
-                                bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage
-                            }));
-                            console.log('levels loaded:', this.levels);
+                            const levelNumbers = { 'LVL01': 1, 'LVL02': 2, 'LVL03': 3, 'LVL04': 4 };
+                            const completed = this.loggedInUser.completedLevels;
 
-                            // unlock next level based on completedLevels
-                            const completedCount = this.loggedInUser.completedLevels;
-                            if (completedCount > 0 && completedCount < 4) {
-                                const nextLevelID = 'LVL0' + (completedCount + 1);
-                                const nextLevel = this.levels.find(l => l.lvlID === nextLevelID);
-                                if (nextLevel && nextLevel.status === 'L') {
-                                    // unlock it in DB
-                                    fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}/${nextLevel._id}`, {
-                                        method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ status: "U" })
-                                    })
-                                    .then(() => {
-                                        // refetch levels so UI reflects the update
-                                        return fetch(`https://signquest-backend-yhj4.onrender.com/collection/${collection}`)
-                                            .then(res => res.json())
-                                            .then(freshData => {
-                                                this.levels = freshData.map(level => ({
-                                                    ...level,
-                                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage
-                                                }));
-                                            });
-                                    })
-                                    .catch(err => console.error('unlock error:', err));
+                            this.levels = data.map(level => {
+                                const lvlNo = levelNumbers[level.lvlID] || 0;
+
+                                let status;
+                                if (lvlNo <= completed) {
+                                    status = 'P';         // already passed
+                                } else if (lvlNo === completed + 1) {
+                                    status = 'U';         // next available level
+                                } else {
+                                    status = 'L';         // locked
                                 }
-                            }
+
+                                return {
+                                    ...level,
+                                    bgImage: 'https://signquest-backend-yhj4.onrender.com/static/' + level.bgImage,
+                                    status: status
+                                };
+                            });
+                            console.log('levels loaded:', this.levels);
                         })
                         .catch(err => console.error('fetch error:', err));
                         
@@ -1364,26 +1354,12 @@
 
                     const userExists = this.allUsers.find(user => user.username === this.login_user.uname && user.email === this.login_user.email);
                     if (userExists) {
-                        fetch('https://signquest-backend-yhj4.onrender.com/collection/users/'+userExists._id, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json', //set data type as json
-                            },
-                            body: JSON.stringify({loggedIn:true}),
-                        })
-                        .then(response => response.json())
-                        .then(updatedStatus => {
-                            console.log("Server response:", updatedStatus);
-                            this.loggedInUser = userExists;
-                            localStorage.setItem('loggedInUserID', userExists._id);
-                            // Clear form
-                            this.login_user.uname = "";
-                            this.login_user.email = "";
-                            this.showHomePage();
-                        })
-                        .catch((error) => {
-                            console.log("fetch error: ", error);
-                        });   
+                        this.loggedInUser = userExists;
+                        localStorage.setItem('loggedInUserID', userExists._id);
+                        // Clear form
+                        this.login_user.uname = "";
+                        this.login_user.email = "";
+                        this.showHomePage();
                     } else {
                         alert("Invalid username or password.")
                     }
