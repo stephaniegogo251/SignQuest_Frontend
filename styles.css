@@ -4,7 +4,8 @@
 body {
     margin: 0;
     padding: 0;
-    background: 'linear-gradient(#14008f, #b159cb)'
+    background: 'linear-gradient(#14008f, #b159cb)';
+    overflow-x: hidden;
 }
 
 /* .background-light {
