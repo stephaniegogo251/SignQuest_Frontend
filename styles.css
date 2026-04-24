@@ -969,7 +969,7 @@ button:disabled, button:disabled:hover {
 .container {
     display: flex;
     flex-direction: column;
-    margin-top: 120px;
+    margin-top: 100px;
     width: 570px;
     height: 550px;
     border: 2px solid black;
@@ -985,7 +985,7 @@ button:disabled, button:disabled:hover {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: -10px 10px 0px 0px;
+    margin: -10px 10px -12px 0px;
     gap: 45%;
     width: 470px;
     height: fit-content;
