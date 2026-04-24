@@ -868,7 +868,7 @@
                     const allLandmarks = [...pose, ...lh, ...rh];
                     const clean = allLandmarks.map(v => (isFinite(v) ? v : 0));
 
-                    console.log("Keypoint length:", clean.length, "| Sample:", clean.slice(0, 5));
+                    console.log("Keypoint length:", clean.length, ", Sample of Keypoints:", clean.slice(0, 5));
                     return clean;
                 },
                 predictSign() {
