@@ -27,7 +27,7 @@
                     <h1>Sign Up</h1>
                     <input type="email" id="signup-email" name="signup-email" placeholder="Email Address" v-model.trim="user.email" required>
                     <input type="text" id="signup-uname" name="signup-uname" placeholder="Username" v-model.trim="user.username" required>
-                    <button @click.prevent="submitSignupForm()" type="submit" class="signup-btn" id="signup-btn" :disabled="!canSubmitSignupForm()">Sign Up</button>
+                    <button @click.prevent="submitSignupForm()" type="submit" class="signup-btn" id="signup-btn" :disabled="!canSubmitSignupForm() || isSubmitting">Sign Up</button>
                     <p>Already Have an Account? <span @click="showLoginPage()" class="login-link">Login</span></p>
                 </form>
             </div>
@@ -511,6 +511,7 @@
                                 <table class="progress-table">
                                     <thead>
                                         <tr>
+                                            <th>#</th>
                                             <th>Sign</th>
                                             <th>Attempts</th>
                                             <th>Best Score</th>
@@ -518,7 +519,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(scores, signName) in signProgress" :key="signName">
+                                        <tr v-for="(scores, signName, index) in signProgress" :key="signName">
+                                            <td>{{ index + 1 }}</td>
                                             <td style="text-align: left;">{{ signName }}</td>
                                             <td>{{ scores.length }}</td>
                                             <td>{{ Math.max(...scores).toFixed(2) }}%</td>
@@ -578,10 +580,15 @@
                             <h3>{{ loggedInUser.league }}</h3> <!-- change according to user's league name -->
                         </div>
                         <div class="ld-table">
-                            <div class="ld-row" v-for="rank in leaderboard">
-                                <p class="ld-rank">{{ rank.rank }}</p>
-                                <p class="ld-name">{{ rank.username }}</p>
-                                <p class="ld-xp">{{ rank.score }}XP</p>
+                            <div class="no-path" v-if="!selectedPath">
+                                Select a Path to see your competitors
+                            </div>
+                            <div class="ld-row" v-for="rank in leaderboard" v-else>
+                                <div>
+                                    <p class="ld-rank">{{ rank.rank }}</p>
+                                    <p class="ld-name">{{ rank.username }}</p>
+                                    <p class="ld-xp">{{ rank.score }}XP</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -686,7 +693,7 @@
                             this.loggedInUser = this.allUsers.find(user => user._id === savedID);
                         }
 
-                        if (this.loggedInUser & this.loggedInUser.totalXP) {
+                        if (this.loggedInUser && this.loggedInUser.totalXP) {
                             this.levelXP = {...this.loggedInUser.totalXP};
                             this.showHomePage();
                         } else {
@@ -1231,9 +1238,12 @@
 
                     this.selectedLevel.status = "P";
 
+                    const existingScore = this.loggedInUser.totalXP?.[levelID] ?? 0;
+                    const bestScore = roundedFinalScore > existingScore ? roundedFinalScore : existingScore;
+
                     const updatedTotalXP = {
                         ...this.loggedInUser.totalXP,
-                        [levelID]: roundedFinalScore
+                        [levelID]: bestScore
                     };
                     const newCount = Object.keys(updatedTotalXP).length;
 
@@ -1342,44 +1352,51 @@
                         alert("Please enter a valid username (letters only) and a proper email address.");
                         return; // Stop the function here
                     }
+                    this.isSubmitting = true;
 
-                    const usernameExists = this.allUsers.find(user => user.username === this.user.username);
-                    const emailExists = this.allUsers.find(user => user.email === this.user.email)
-                    if (!usernameExists && !emailExists) {    
-                        const newUser = {...this.user};
-                        newUser["userID"] = "user" + (this.allUsers.length+1);
+                    fetch('https://signquest-backend-yhj4.onrender.com/collection/users')
+                    .then(res => res.json())
+                    .then(nowUsers => {
+                        const usernameExists = nowUsers.find(user => user.username === this.user.username);
+                        const emailExists = nowUsers.find(user => user.email === this.user.email);
 
-                        fetch('https://signquest-backend-yhj4.onrender.com/collection/users', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(newUser)
-                        })
-                        .then(res => res.json())
-                        .then(responseJSON => {
-                            alert("Your account has been created!");
-                            console.log("added new user:", responseJSON);
-                            this.user = {
-                                "username": "",
-                                "email": "",
-                                "badges": 0,
-                                "selectedPath": "",
-                                "completedLevels": 0,
-                                "totalXP": 0,
-                                "image": "def_prof.png",
-                                "signScores":[],
-                                "league":"Sign Starters"
-                            }
+                        if (!usernameExists && !emailExists) {
+                            const newUser = { ...this.user };
+                            newUser["userID"] = "user" + (nowUsers.length + 1);
 
-                            document.getElementById("signup-form").reset()
-                            this.showLoginPage()
-                        });
-                    } else {
-                        if (usernameExists) {
-                            alert("Username already exists!");
+                            return fetch('https://signquest-backend-yhj4.onrender.com/collection/users', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(newUser)
+                            })
+                            .then(res => res.json())
+                            .then(responseJSON => {
+                                alert("Your account has been created!");
+                                this.allUsers = [...nowUsers, newUser]; // keep allUsers in sync
+                                this.user = {
+                                    "username": "",
+                                    "email": "", 
+                                    "badges": 0,
+                                    "selectedPath": "", 
+                                    "completedLevels": 0,
+                                    "totalXP": 0, 
+                                    "image": "def_prof.png",
+                                    "signScores": [], 
+                                    "league": "Sign Starters"
+                                };
+                                this.showLoginPage();
+                            });
                         } else {
-                            alert("This email id has already been registered. Please login!");
+                            if (usernameExists) alert("Username already exists!");
+                            else alert("This email has already been registered. Please login!");
                         }
-                    }
+                    })
+                    .catch(err => {
+                        console.error('signup error:', err);
+                    })
+                    .finally(() => {
+                        this.isSubmitting = false;
+                    });
                 },
                 submitLoginForm() {
                     if (!this.canSubmitLoginForm()) {
@@ -1389,7 +1406,12 @@
 
                     const userExists = this.allUsers.find(user => user.username === this.login_user.uname && user.email === this.login_user.email);
                     if (userExists) {
-                        this.loggedInUser = userExists;
+                        this.loggedInUser = {
+                            ...userExists,
+                            image: userExists.image.startsWith('http') 
+                                ? userExists.image
+                                : 'https://signquest-backend-yhj4.onrender.com/static/' + userExists.image
+                        };
                         localStorage.setItem('loggedInUserID', userExists._id);
                         // Clear form
                         this.login_user.uname = "";

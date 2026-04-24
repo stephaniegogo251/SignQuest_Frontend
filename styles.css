@@ -182,13 +182,13 @@ table {
 
 table th {
     text-align: justify;
-    width: 32%;
+    width: 30%;
     text-wrap: nowrap;
 }
 
 table td {
     text-align: center;
-    width: 32%;
+    width: 30%;
     text-wrap: nowrap;
 }
 
@@ -211,7 +211,7 @@ table td {
 }
 
 
-.no-progress {
+.no-progress, .no-path {
     display: flex;
     align-items: center;
     justify-content: center;
